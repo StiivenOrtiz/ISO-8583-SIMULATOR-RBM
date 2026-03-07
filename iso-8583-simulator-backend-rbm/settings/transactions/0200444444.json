@@ -1,0 +1,16 @@
+{
+  "MTI": "02 10",
+  "P2": "SAME",
+  "P3": "SAME",
+  "P4": "SAME",
+  "P11": "SAME",
+  "P12": "NOW_TIME",
+  "P13": "NOW_DATE",
+  "P24": "SAME",
+  "P37": "ALEATORY AN NUMBER 12",
+  "P38": "ALEATORY AN NUMBER 2 RIGHT TEST",
+  "P39": "00",
+  "P41": "SAME",
+  "P48": "SAME",
+  "P64": "00 00 00 00 00 00 00 00"
+}

@@ -1,0 +1,1183 @@
+{
+  "TPDU": {
+    "id": "TPDU",
+    "name": "Transport Protocol Data Unit",
+    "description": "Information used for transport layer communication",
+    "type": "byte",
+    "lengthType": "F",
+    "length": 5,
+    "encoding": "HEX"
+  },
+  "MTI": {
+    "id": "MTI",
+    "name": "Message Type Indicator",
+    "description": "Indicates the type of transaction being processed",
+    "type": "byte",
+    "lengthType": "F",
+    "length": 2,
+    "encoding": "BCD"
+  },
+  "BITMAP": {
+    "id": "BITMAP",
+    "name": "Bit Map",
+    "description": "Indicates which data elements are present in the message",
+    "type": "byte",
+    "lengthType": "F",
+    "length": 8,
+    "encoding": "BINARY"
+  },
+  "dataElements": [
+    {
+      "id": "P1",
+      "name": "Bit Map Extended",
+      "description": "Extended bitmap for additional data elements",
+      "type": "b-bit",
+      "lengthType": "F",
+      "length": 64,
+      "encoding": "BINARY"
+    },
+    {
+      "id": "P2",
+      "name": "PAN",
+      "description": "Primary Account Number",
+      "type": "n",
+      "lengthType": "LLVAR",
+      "length": 19,
+      "encoding": "BCD"
+    },
+    {
+      "id": "P3",
+      "name": "Processing Code",
+      "description": "Code indicating the type of transaction",
+      "type": "n",
+      "lengthType": "F",
+      "length": 6,
+      "encoding": "BCD"
+    },
+    {
+      "id": "P4",
+      "name": "Transaction Amount",
+      "description": "Amount of the transaction",
+      "type": "n",
+      "lengthType": "F",
+      "length": 12,
+      "encoding": "BCD"
+    },
+    {
+      "id": "P5",
+      "name": "Amount, Settlement",
+      "description": "Settlement amount of the transaction",
+      "type": "n",
+      "lengthType": "F",
+      "length": 12,
+      "encoding": "BCD"
+    },
+    {
+      "id": "P6",
+      "name": "Amount, Cardholder Billing",
+      "description": "Billing amount for the cardholder",
+      "type": "n",
+      "lengthType": "F",
+      "length": 12,
+      "encoding": "BCD"
+    },
+    {
+      "id": "P7",
+      "name": "Transmission Date & Time",
+      "description": "Date and time of the transaction transmission",
+      "type": "n",
+      "lengthType": "F",
+      "length": 10,
+      "encoding": "BCD"
+    },
+    {
+      "id": "P8",
+      "name": "Cardholder Billing Fee",
+      "description": "Fee charged to the cardholder for the transaction",
+      "type": "n",
+      "lengthType": "F",
+      "length": 8,
+      "encoding": "BCD"
+    },
+    {
+      "id": "P9",
+      "name": "Conversion Rate, Settlement",
+      "description": "Conversion rate for settlement currency",
+      "type": "n",
+      "lengthType": "F",
+      "length": 8,
+      "encoding": "BCD"
+    },
+    {
+      "id": "P10",
+      "name": "Conversion Rate, Cardholder Billing",
+      "description": "Conversion rate for cardholder billing currency",
+      "type": "n",
+      "lengthType": "F",
+      "length": 8,
+      "encoding": "BCD"
+    },
+    {
+      "id": "P11",
+      "name": "Systems trace audit number",
+      "description": "Unique number assigned by the system for auditing",
+      "type": "n",
+      "lengthType": "F",
+      "length": 6,
+      "encoding": "BCD"
+    },
+    {
+      "id": "P12",
+      "name": "Time, Local transaction",
+      "description": "Local time of the transaction",
+      "type": "n",
+      "lengthType": "F",
+      "length": 6,
+      "encoding": "BCD"
+    },
+    {
+      "id": "P13",
+      "name": "Date, Local transaction (MMdd)",
+      "description": "Local date of the transaction (Month and Day)",
+      "type": "n",
+      "lengthType": "F",
+      "length": 4,
+      "encoding": "BCD"
+    },
+    {
+      "id": "P14",
+      "name": "Date, Expiration",
+      "description": "Expiration date of the card",
+      "type": "n",
+      "lengthType": "F",
+      "length": 4,
+      "encoding": "BCD"
+    },
+    {
+      "id": "P15",
+      "name": "Date, Settlement",
+      "description": "Settlement date of the transaction",
+      "type": "n",
+      "lengthType": "F",
+      "length": 4,
+      "encoding": "BCD"
+    },
+    {
+      "id": "P16",
+      "name": "Date, conversion",
+      "description": "Date of currency conversion",
+      "type": "n",
+      "lengthType": "F",
+      "length": 4,
+      "encoding": "BCD"
+    },
+    {
+      "id": "P17",
+      "name": "Date, capture",
+      "description": "Date when the transaction was captured",
+      "type": "n",
+      "lengthType": "F",
+      "length": 4,
+      "encoding": "BCD"
+    },
+    {
+      "id": "P18",
+      "name": "Merchant type",
+      "description": "Type of merchant",
+      "type": "n",
+      "lengthType": "F",
+      "length": 4,
+      "encoding": "BCD"
+    },
+    {
+      "id": "P19",
+      "name": "Acquiring institution country code",
+      "description": "Country code of the acquiring institution",
+      "type": "n",
+      "lengthType": "F",
+      "length": 3,
+      "encoding": "BCD"
+    },
+    {
+      "id": "P20",
+      "name": "PAN Extended, country code",
+      "description": "Country code for extended PAN",
+      "type": "n",
+      "lengthType": "F",
+      "length": 3,
+      "encoding": "BCD"
+    },
+    {
+      "id": "P21",
+      "name": "Forwarding institution. country code",
+      "description": "Country code of the forwarding institution",
+      "type": "n",
+      "lengthType": "F",
+      "length": 3,
+      "encoding": "BCD"
+    },
+    {
+      "id": "P22",
+      "name": "Point of service entry mode",
+      "description": "Indicates how the card data was entered at the point of service",
+      "type": "n",
+      "lengthType": "F",
+      "length": 3,
+      "encoding": "BCD"
+    },
+    {
+      "id": "P23",
+      "name": "Application PAN number",
+      "description": "Application PAN sequence number",
+      "type": "n",
+      "lengthType": "F",
+      "length": 3,
+      "encoding": "BCD"
+    },
+    {
+      "id": "P24",
+      "name": "Function code(ISO 8583:1993)/Network International identifier (?)",
+      "description": "Function code or Network International identifier",
+      "type": "n",
+      "lengthType": "F",
+      "length": 3,
+      "encoding": "BCD"
+    },
+    {
+      "id": "P25",
+      "name": "Point of service condition code",
+      "description": "Condition of the transaction at the point of service",
+      "type": "n",
+      "lengthType": "F",
+      "length": 2,
+      "encoding": "BCD"
+    },
+    {
+      "id": "P26",
+      "name": "Point of service capture code",
+      "description": "Capture code at the point of service",
+      "type": "n",
+      "lengthType": "F",
+      "length": 2,
+      "encoding": "BCD"
+    },
+    {
+      "id": "P27",
+      "name": "Authorizing identification response length",
+      "description": "Length of the authorizing identification response",
+      "type": "n",
+      "lengthType": "F",
+      "length": 1,
+      "encoding": "BCD"
+    },
+    {
+      "id": "P28",
+      "name": "Amount, transaction fee",
+      "description": "Fee for the transaction",
+      "type": "n",
+      "lengthType": "F",
+      "length": 10,
+      "encoding": "BCD"
+    },
+    {
+      "id": "P29",
+      "name": "Amount. settlement fee",
+      "description": "Settlement fee for the transaction",
+      "type": "n",
+      "lengthType": "F",
+      "length": 10,
+      "encoding": "BCD"
+    },
+    {
+      "id": "P30",
+      "name": "Amount, transaction processing fee",
+      "description": "Processing fee for the transaction",
+      "type": "n",
+      "lengthType": "F",
+      "length": 10,
+      "encoding": "BCD"
+    },
+    {
+      "id": "P31",
+      "name": "Amount, settlement processing fee",
+      "description": "Settlement processing fee for the transaction",
+      "type": "n",
+      "lengthType": "F",
+      "length": 10,
+      "encoding": "BCD"
+    },
+    {
+      "id": "P32",
+      "name": "Acquiring institution identification code",
+      "description": "Identification code of the acquiring institution",
+      "type": "n",
+      "lengthType": "LLVAR",
+      "length": 11,
+      "encoding": "BCD"
+    },
+    {
+      "id": "P33",
+      "name": "Forwarding institution identification code",
+      "description": "Identification code of the forwarding institution",
+      "type": "n",
+      "lengthType": "LLVAR",
+      "length": 11,
+      "encoding": "BCD"
+    },
+    {
+      "id": "P34",
+      "name": "Primary account number, extended",
+      "description": "Extended primary account number",
+      "type": "n",
+      "lengthType": "LLVAR",
+      "length": 28,
+      "encoding": "BCD"
+    },
+    {
+      "id": "P35",
+      "name": "Track 2 data",
+      "description": "Data from Track 2 of the card",
+      "type": "z",
+      "lengthType": "LLVAR",
+      "length": 37,
+      "encoding": "BCD"
+    },
+    {
+      "id": "P36",
+      "name": "Track 3 data",
+      "description": "Data from Track 3 of the card",
+      "type": "z",
+      "lengthType": "LLLVAR",
+      "length": 104,
+      "encoding": "BCD"
+    },
+    {
+      "id": "P37",
+      "name": "Retrieval reference number",
+      "description": "Reference number for retrieval of the transaction",
+      "type": "an",
+      "lengthType": "F",
+      "length": 12,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "P38",
+      "name": "Authorization identification response",
+      "description": "Authorization identification response code",
+      "type": "an",
+      "lengthType": "F",
+      "length": 6,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "P39",
+      "name": "Response code",
+      "description": "Response code of the transaction",
+      "type": "an",
+      "lengthType": "F",
+      "length": 2,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "P40",
+      "name": "Service restriction code",
+      "description": "Code indicating service restrictions",
+      "type": "an",
+      "lengthType": "F",
+      "length": 3,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "P41",
+      "name": "Card acceptor terminal identification",
+      "description": "Identification of the card acceptor terminal",
+      "type": "ans",
+      "lengthType": "F",
+      "length": 8,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "P42",
+      "name": "Card acceptor identification code",
+      "description": "Identification code of the card acceptor",
+      "type": "ans",
+      "lengthType": "F",
+      "length": 15,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "P43",
+      "name": "Card acceptor name/location",
+      "description": "Name and location of the card acceptor",
+      "type": "ans",
+      "lengthType": "F",
+      "length": 40,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "P44",
+      "name": "Additional response data",
+      "description": "Additional data in the response",
+      "type": "an",
+      "lengthType": "LLVAR",
+      "length": 25,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "P45",
+      "name": "Track 1 Data",
+      "description": "Data from Track 1 of the card",
+      "type": "an",
+      "lengthType": "LLVAR",
+      "length": 76,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "P46",
+      "name": "Additional data - ISO",
+      "description": "Additional ISO-defined data",
+      "type": "an",
+      "lengthType": "LLLVAR",
+      "length": 999,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "P47",
+      "name": "Additional data - National",
+      "description": "Additional national data",
+      "type": "an",
+      "lengthType": "LLLVAR",
+      "length": 999,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "P48",
+      "name": "Additional data - Private",
+      "description": "Additional private data",
+      "type": "an",
+      "lengthType": "LLLVAR",
+      "length": 999,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "P49",
+      "name": "Currency code, transaction",
+      "description": "Currency code of the transaction",
+      "type": "a",
+      "lengthType": "F",
+      "length": 3,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "P50",
+      "name": "Currency code, settlement",
+      "description": "Currency code for settlement",
+      "type": "an",
+      "lengthType": "F",
+      "length": 3,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "P51",
+      "name": "Currency code, cardholder billing",
+      "description": "Currency code for cardholder billing",
+      "type": "a",
+      "lengthType": "F",
+      "length": 3,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "P52",
+      "name": "Personal Identification number data",
+      "description": "Personal Identification Number (PIN) data",
+      "type": "b",
+      "lengthType": "F",
+      "length": 16,
+      "encoding": "BINARY"
+    },
+    {
+      "id": "P53",
+      "name": "Security related control information",
+      "description": "Information related to security control",
+      "type": "n",
+      "lengthType": "F",
+      "length": 16,
+      "encoding": "BCD"
+    },
+    {
+      "id": "P54",
+      "name": "Additional amounts",
+      "description": "Additional transaction amounts",
+      "type": "an",
+      "lengthType": "LLLVAR",
+      "length": 120,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "P55",
+      "name": "Reserved ISO",
+      "description": "Reserved for ISO use",
+      "type": "ans",
+      "lengthType": "LLLVAR",
+      "length": 999,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "P56",
+      "name": "Reserved ISO",
+      "description": "Reserved for ISO use",
+      "type": "ans",
+      "lengthType": "LLLVAR",
+      "length": 999,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "P57",
+      "name": "Reserved National",
+      "description": "Reserved for national use",
+      "type": "ans",
+      "lengthType": "LLLVAR",
+      "length": 999,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "P58",
+      "name": "Reserved National",
+      "description": "Reserved for national use",
+      "type": "ans",
+      "lengthType": "LLLVAR",
+      "length": 999,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "P59",
+      "name": "Reserved for national use",
+      "description": "Reserved for national use",
+      "type": "ans",
+      "lengthType": "LLLVAR",
+      "length": 999,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "P60",
+      "name": "Advice/reason code (private reserved)",
+      "description": "Advice or reason code for the transaction",
+      "type": "ans",
+      "lengthType": "LLLVAR",
+      "length": 999,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "P61",
+      "name": "Reserved Private",
+      "description": "Reserved for private use",
+      "type": "ans",
+      "lengthType": "LLLVAR",
+      "length": 999,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "P62",
+      "name": "Reserved Private",
+      "description": "Reserved for private use",
+      "type": "ans",
+      "lengthType": "LLLVAR",
+      "length": 999,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "P63",
+      "name": "Reserved Private",
+      "description": "Reserved for private use",
+      "type": "ans",
+      "lengthType": "LLLVAR",
+      "length": 999,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "P64",
+      "name": "Message authentication code (MAC)",
+      "description": "Message authentication code",
+      "type": "b",
+      "lengthType": "F",
+      "length": 16,
+      "encoding": "BINARY"
+    },
+    {
+      "id": "S65",
+      "name": "Bit map, tertiary",
+      "description": "Tertiary bitmap",
+      "type": "b",
+      "lengthType": "F",
+      "length": 16,
+      "encoding": "BINARY"
+    },
+    {
+      "id": "S66",
+      "name": "Settlement code",
+      "description": "Code for settlement",
+      "type": "n",
+      "lengthType": "F",
+      "length": 1,
+      "encoding": "BCD"
+    },
+    {
+      "id": "S67",
+      "name": "Extended payment code",
+      "description": "Code for extended payment",
+      "type": "n",
+      "lengthType": "F",
+      "length": 2,
+      "encoding": "BCD"
+    },
+    {
+      "id": "S68",
+      "name": "Receiving institution country code",
+      "description": "Country code of the receiving institution",
+      "type": "n",
+      "lengthType": "F",
+      "length": 3,
+      "encoding": "BCD"
+    },
+    {
+      "id": "S69",
+      "name": "Settlement institution county code",
+      "description": "Country code of the settlement institution",
+      "type": "n",
+      "lengthType": "F",
+      "length": 3,
+      "encoding": "BCD"
+    },
+    {
+      "id": "S70",
+      "name": "Network management Information code",
+      "description": "Network management information code",
+      "type": "n",
+      "lengthType": "F",
+      "length": 3,
+      "encoding": "BCD"
+    },
+    {
+      "id": "S71",
+      "name": "Message number",
+      "description": "Message number",
+      "type": "n",
+      "lengthType": "F",
+      "length": 4,
+      "encoding": "BCD"
+    },
+    {
+      "id": "S72",
+      "name": "Data record (ISO 8583:1993)/n 4 Message number, last(?)",
+      "description": "Data record or last message number",
+      "type": "n",
+      "lengthType": "F",
+      "length": 4,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "S73",
+      "name": "Date, Action",
+      "description": "Date of action",
+      "type": "n",
+      "lengthType": "F",
+      "length": 6,
+      "encoding": "BCD"
+    },
+    {
+      "id": "S74",
+      "name": "Credits, number",
+      "description": "Number of credits",
+      "type": "n",
+      "lengthType": "F",
+      "length": 10,
+      "encoding": "BCD"
+    },
+    {
+      "id": "S75",
+      "name": "Credits, reversal number",
+      "description": "Number of credit reversals",
+      "type": "n",
+      "lengthType": "F",
+      "length": 10,
+      "encoding": "BCD"
+    },
+    {
+      "id": "S76",
+      "name": "Debits, number",
+      "description": "Number of debits",
+      "type": "n",
+      "lengthType": "F",
+      "length": 10,
+      "encoding": "BCD"
+    },
+    {
+      "id": "S77",
+      "name": "Debits, reversal number",
+      "description": "Number of debit reversals",
+      "type": "n",
+      "lengthType": "F",
+      "length": 10,
+      "encoding": "BCD"
+    },
+    {
+      "id": "S78",
+      "name": "Transfer number",
+      "description": "Number of transfers",
+      "type": "n",
+      "lengthType": "F",
+      "length": 10,
+      "encoding": "BCD"
+    },
+    {
+      "id": "S79",
+      "name": "Transfer, reversal number",
+      "description": "Number of transfer reversals",
+      "type": "n",
+      "lengthType": "F",
+      "length": 10,
+      "encoding": "BCD"
+    },
+    {
+      "id": "S80",
+      "name": "Inquiries number",
+      "description": "Number of inquiries",
+      "type": "n",
+      "lengthType": "F",
+      "length": 10,
+      "encoding": "BCD"
+    },
+    {
+      "id": "S81",
+      "name": "Authorizations, number",
+      "description": "Number of authorizations",
+      "type": "n",
+      "lengthType": "F",
+      "length": 10,
+      "encoding": "BCD"
+    },
+    {
+      "id": "S82",
+      "name": "Credits, processing fee amount",
+      "description": "Processing fee amount for credits",
+      "type": "n",
+      "lengthType": "F",
+      "length": 12,
+      "encoding": "BCD"
+    },
+    {
+      "id": "S83",
+      "name": "Credits, transaction fee amount",
+      "description": "Transaction fee amount for credits",
+      "type": "n",
+      "lengthType": "F",
+      "length": 12,
+      "encoding": "BCD"
+    },
+    {
+      "id": "S84",
+      "name": "Debits, processing fee amount",
+      "description": "Processing fee amount for debits",
+      "type": "n",
+      "lengthType": "F",
+      "length": 12,
+      "encoding": "BCD"
+    },
+    {
+      "id": "S85",
+      "name": "Debits, transaction fee amount",
+      "description": "Transaction fee amount for debits",
+      "type": "n",
+      "lengthType": "F",
+      "length": 12,
+      "encoding": "BCD"
+    },
+    {
+      "id": "S86",
+      "name": "Credits, amount",
+      "description": "Amount of credits",
+      "type": "n",
+      "lengthType": "F",
+      "length": 15,
+      "encoding": "BCD"
+    },
+    {
+      "id": "S87",
+      "name": "Credits, reversal amount",
+      "description": "Amount of credit reversals",
+      "type": "n",
+      "lengthType": "F",
+      "length": 15,
+      "encoding": "BCD"
+    },
+    {
+      "id": "S88",
+      "name": "Debits, amount",
+      "description": "Amount of debits",
+      "type": "n",
+      "lengthType": "F",
+      "length": 15,
+      "encoding": "BCD"
+    },
+    {
+      "id": "S89",
+      "name": "Debits, reversal amount",
+      "description": "Amount of debit reversals",
+      "type": "n",
+      "lengthType": "F",
+      "length": 15,
+      "encoding": "BCD"
+    },
+    {
+      "id": "S90",
+      "name": "Original data elements",
+      "description": "Original data elements of the transaction",
+      "type": "n",
+      "lengthType": "F",
+      "length": 40,
+      "encoding": "BCD"
+    },
+    {
+      "id": "S91",
+      "name": "File update code",
+      "description": "Code for file update",
+      "type": "an",
+      "lengthType": "F",
+      "length": 1,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "S92",
+      "name": "File security code",
+      "description": "Code for file security",
+      "type": "an",
+      "lengthType": "F",
+      "length": 2,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "S93",
+      "name": "Response indicator",
+      "description": "Indicator for the response",
+      "type": "an",
+      "lengthType": "F",
+      "length": 5,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "S94",
+      "name": "Service indicator",
+      "description": "Indicator for the service",
+      "type": "an",
+      "lengthType": "F",
+      "length": 7,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "S95",
+      "name": "Replacement amounts",
+      "description": "Replacement amounts for the transaction",
+      "type": "an",
+      "lengthType": "F",
+      "length": 42,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "S96",
+      "name": "Message security code",
+      "description": "Code for message security",
+      "type": "an",
+      "lengthType": "F",
+      "length": 8,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "S97",
+      "name": "Amount, net settlement",
+      "description": "Net settlement amount",
+      "type": "n",
+      "lengthType": "F",
+      "length": 18,
+      "encoding": "BCD"
+    },
+    {
+      "id": "S98",
+      "name": "Payee",
+      "description": "Payee of the transaction",
+      "type": "ans",
+      "lengthType": "F",
+      "length": 25,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "S99",
+      "name": "Settlement institution identification code",
+      "description": "Identification code of the settlement institution",
+      "type": "n",
+      "lengthType": "LLVAR",
+      "length": 11,
+      "encoding": "BCD"
+    },
+    {
+      "id": "S100",
+      "name": "Receiving institution identification code",
+      "description": "Identification code of the receiving institution",
+      "type": "n",
+      "lengthType": "LLVAR",
+      "length": 11,
+      "encoding": "BCD"
+    },
+    {
+      "id": "S101",
+      "name": "File name",
+      "description": "Name of the file",
+      "type": "ans",
+      "lengthType": "LLVAR",
+      "length": 17,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "S102",
+      "name": "Account identification 1",
+      "description": "First account identification",
+      "type": "ans",
+      "lengthType": "LLVAR",
+      "length": 28,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "S103",
+      "name": "Account identification 2",
+      "description": "Second account identification",
+      "type": "ans",
+      "lengthType": "LLVAR",
+      "length": 28,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "S104",
+      "name": "Transaction description",
+      "description": "Description of the transaction",
+      "type": "ans",
+      "lengthType": "LLLVAR",
+      "length": 100,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "S105",
+      "name": "Reserved for ISO use",
+      "description": "Reserved for ISO use",
+      "type": "ans",
+      "lengthType": "LLLVAR",
+      "length": 999,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "S106",
+      "name": "Reserved for ISO use",
+      "description": "Reserved for ISO use",
+      "type": "ans",
+      "lengthType": "LLLVAR",
+      "length": 999,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "S107",
+      "name": "Reserved for ISO use",
+      "description": "Reserved for ISO use",
+      "type": "ans",
+      "lengthType": "LLLVAR",
+      "length": 999,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "S108",
+      "name": "Reserved for ISO use",
+      "description": "Reserved for ISO use",
+      "type": "ans",
+      "lengthType": "LLLVAR",
+      "length": 999,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "S109",
+      "name": "Reserved for ISO use",
+      "description": "Reserved for ISO use",
+      "type": "ans",
+      "lengthType": "LLLVAR",
+      "length": 999,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "S110",
+      "name": "Reserved for ISO use",
+      "description": "Reserved for ISO use",
+      "type": "ans",
+      "lengthType": "LLLVAR",
+      "length": 999,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "S111",
+      "name": "Reserved for ISO use",
+      "description": "Reserved for ISO use",
+      "type": "ans",
+      "lengthType": "LLLVAR",
+      "length": 999,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "S112",
+      "name": "Reserved for national use",
+      "description": "Reserved for national use",
+      "type": "ans",
+      "lengthType": "LLLVAR",
+      "length": 999,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "S113",
+      "name": "Authorizing agent institution id code",
+      "description": "ID code of the authorizing agent institution",
+      "type": "ans",
+      "lengthType": "LLLVAR",
+      "length": 999,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "S114",
+      "name": "Reserved for national use",
+      "description": "Reserved for national use",
+      "type": "ans",
+      "lengthType": "LLLVAR",
+      "length": 999,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "S115",
+      "name": "Reserved for national use",
+      "description": "Reserved for national use",
+      "type": "ans",
+      "lengthType": "LLLVAR",
+      "length": 999,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "S116",
+      "name": "Reserved for national use",
+      "description": "Reserved for national use",
+      "type": "ans",
+      "lengthType": "LLLVAR",
+      "length": 999,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "S117",
+      "name": "Reserved for national use",
+      "description": "Reserved for national use",
+      "type": "ans",
+      "lengthType": "LLLVAR",
+      "length": 999,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "S118",
+      "name": "Reserved for national use",
+      "description": "Reserved for national use",
+      "type": "ans",
+      "lengthType": "LLLVAR",
+      "length": 999,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "S119",
+      "name": "Reserved for national use",
+      "description": "Reserved for national use",
+      "type": "ans",
+      "lengthType": "LLLVAR",
+      "length": 999,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "S120",
+      "name": "Reserved for private use",
+      "description": "Reserved for private use",
+      "type": "ans",
+      "lengthType": "LLLVAR",
+      "length": 999,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "S121",
+      "name": "Reserved for private use",
+      "description": "Reserved for private use",
+      "type": "ans",
+      "lengthType": "LLLVAR",
+      "length": 999,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "S122",
+      "name": "Reserved for private use",
+      "description": "Reserved for private use",
+      "type": "ans",
+      "lengthType": "LLLVAR",
+      "length": 999,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "S123",
+      "name": "Reserved for private use",
+      "description": "Reserved for private use",
+      "type": "ans",
+      "lengthType": "LLLVAR",
+      "length": 999,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "S124",
+      "name": "Info Text",
+      "description": "Informational text",
+      "type": "ans",
+      "lengthType": "LLLVAR",
+      "length": 999,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "S125",
+      "name": "Network management information",
+      "description": "Information for network management",
+      "type": "ans",
+      "lengthType": "LLLVAR",
+      "length": 999,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "S126",
+      "name": "Issuer trace id",
+      "description": "Trace ID of the issuer",
+      "type": "ans",
+      "lengthType": "LLLVAR",
+      "length": 999,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "S127",
+      "name": "Reserved for private use",
+      "description": "Reserved for private use",
+      "type": "ans",
+      "lengthType": "LLLVAR",
+      "length": 999,
+      "encoding": "ASCII"
+    },
+    {
+      "id": "S128",
+      "name": "Message Authentication code",
+      "description": "Message Authentication Code",
+      "type": "b",
+      "lengthType": "F",
+      "length": 16,
+      "encoding": "BINARY"
+    }
+  ]
+}

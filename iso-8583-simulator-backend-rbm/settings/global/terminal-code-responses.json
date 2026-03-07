@@ -1,0 +1,8 @@
+{
+  "global" : "off",
+  "globalResponse" : "",
+  "perTerminal" : {
+    "TERMINA1" : "02",
+    "TERMINA2" : "07"
+  }
+}

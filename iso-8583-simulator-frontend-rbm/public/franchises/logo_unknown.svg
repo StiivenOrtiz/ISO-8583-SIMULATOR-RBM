@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512px" height="350px" viewBox="0 0 750 471" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Credit Card Question Icon</title>
+    <g id="SVGRepo_bgCarrier" stroke-width="0"/>
+    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
+    <g id="SVGRepo_iconCarrier">
+        <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+            <g id="Card-Icon" fill-rule="nonzero">
+                <path d="M52.877,0 C23.679,0 0,23.154 0,51.710 L0,419.289 C0,447.850 23.671,471 52.877,471 L697.122,471 C726.320,471 750,447.845 750,419.289 L750,51.710 C750,23.149 726.328,0 697.122,0 L52.877,0 Z" id="Card-Body" fill="#4D4D4D"></path>
+                
+                <rect id="Stripe" fill="#FFFFFF" opacity="0.15" x="0" y="70" width="750" height="90"></rect>
+                
+                <g id="Details" transform="translate(60, 240)" fill="#FFFFFF" opacity="0.5">
+                    <rect x="0" y="0" width="120" height="20" rx="10"></rect>
+                    <rect x="150" y="0" width="120" height="20" rx="10"></rect>
+                    <rect x="300" y="0" width="120" height="20" rx="10"></rect>
+                    <rect x="450" y="0" width="120" height="20" rx="10"></rect>
+                    
+                    <rect x="0" y="60" width="80" height="20" rx="10"></rect>
+                    <rect x="0" y="100" width="180" height="20" rx="10"></rect>
+                </g>
+
+                <g id="Help-Circle" transform="translate(480, 260)">
+                    <circle id="Bg" fill="#FFFFFF" cx="110" cy="110" r="110"></circle>
+                    <path d="M110,35 C80,35 60,55 58,85 L83,85 C84,72 92,60 110,60 C128,60 135,72 135,82 C135,95 125,102 115,112 C105,122 100,135 100,150 L122,150 C122,135 125,130 138,118 C150,105 160,95 160,80 C160,50 140,35 110,35 Z M100,165 L100,190 L125,190 L125,165 L100,165 Z" id="Question-Mark" fill="#4D4D4D"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,10 @@
+{
+  "posTerminals" : {
+    "1" : "TERMINA2",
+    "2" : "TERMINA1",
+    "3" : "TERMINA3",
+    "4" : "TERMINA5",
+    "5" : "SAP1234",
+    "6" : "SAP12345"
+  }
+}
