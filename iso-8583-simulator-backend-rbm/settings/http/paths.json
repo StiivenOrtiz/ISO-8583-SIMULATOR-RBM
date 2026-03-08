@@ -1,0 +1,10 @@
+{
+  "paths": [
+    {
+      "method": "PUT",
+      "path": "/Terminal/Voucher",
+      "requestSchema": "not mapped",
+      "responseSchema": "not mapped"
+    }
+  ]
+}

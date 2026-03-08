@@ -25,4 +25,12 @@ public record ProtocolFrame(
     ) {
         this(protocol, metadata, new TransactionContext(rawRequest, protocol));
     }
+
+    public ProtocolFrame(
+            ProtocolType protocol,
+            ProtocolMetadata metadata,
+            byte[] rawRequest
+    ) {
+        this(protocol, metadata, new TransactionContext(rawRequest, protocol));
+    }
 }

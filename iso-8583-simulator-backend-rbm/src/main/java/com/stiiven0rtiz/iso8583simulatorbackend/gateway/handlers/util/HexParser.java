@@ -32,4 +32,16 @@ public class HexParser {
 
         return sb.toString();
     }
+
+    public static String toHexNoSpace(byte[] bytes) {
+        StringBuilder sb = new StringBuilder(bytes.length * 2);
+
+        for (byte b : bytes) {
+            int v = b & 0xFF;
+            sb.append(HEX_ARRAY[v >>> 4]);
+            sb.append(HEX_ARRAY[v & 0x0F]);
+        }
+
+        return sb.toString();
+    }
 }

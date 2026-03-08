@@ -1,0 +1,6 @@
+{
+  "fields": [
+    { "name": "Terminal", "type": "string" },
+    { "name": "Data", "type": "voucher_digital_parser.json" }
+  ]
+}

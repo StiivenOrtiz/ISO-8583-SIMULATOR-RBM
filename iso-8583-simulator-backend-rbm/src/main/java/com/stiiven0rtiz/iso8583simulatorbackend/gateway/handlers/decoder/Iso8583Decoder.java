@@ -42,9 +42,9 @@ public class Iso8583Decoder implements ProtocolFrameDecoder {
         int start = in.readerIndex();
 
         // ========== TPDU ==========
-        if (in.readableBytes() < iso.getTPDU().length()) {
+        if (in.readableBytes() < iso.getTPDU().length())
             return null;
-        }
+
         logger.info("{} - Reading TPDU", thisId);
         in.skipBytes(iso.getTPDU().length());
 
@@ -57,10 +57,6 @@ public class Iso8583Decoder implements ProtocolFrameDecoder {
         byte[] mti = new byte[iso.getMTI().length()];
         in.readBytes(mti);
 
-        if (!isValidMti(mti)) {
-            throw new IllegalArgumentException("Invalid MTI");
-        }
-
         logger.info("{} - MTI: {}", thisId, bcdToString(mti));
 
         // ========== BITMAP ==========
@@ -71,15 +67,8 @@ public class Iso8583Decoder implements ProtocolFrameDecoder {
 
         long primary = in.readLong();
 
-//        Queue<String> localFields = new LinkedList<>();
-//        Map<String, MSGLengths> localLengths = new TreeMap<>(
-//                Comparator.comparingInt(s -> Integer.parseInt(s.substring(1)))
-//        );
-
         Queue<Integer> localFields = new ArrayDeque<>();
         Map<Integer, MSGLengths> localLengths = new TreeMap<>();
-
-//        readBitmap(primary, 1, 64, 'P', localFields);
 
         readBitmap(primary, 1, 64, localFields);
 
@@ -193,27 +182,8 @@ public class Iso8583Decoder implements ProtocolFrameDecoder {
     }
 
     private void readBitmap(long bitmap, int start, int end, Queue<Integer> fields) {
-        for (int i = start; i <= end; i++) {
-            if ((bitmap & (1L << (64 - i))) != 0) {
+        for (int i = start; i <= end; i++)
+            if ((bitmap & (1L << (64 - i))) != 0)
                 fields.add(i);
-            }
-        }
-    }
-
-    private boolean isValidMti(byte[] bcdBytes) {
-        String mti = bcdToString(bcdBytes);
-
-        if (mti.length() != 4 || !mti.matches("\\d{4}"))
-            return false;
-
-        char version = mti.charAt(0);  // Pos 1
-        char messageClass = mti.charAt(1); // Pos 2
-        char function = mti.charAt(2); // Pos 3
-
-        boolean versionValid = "0129".indexOf(version) != -1;
-        boolean classValid = "123456789".indexOf(messageClass) != -1;
-        boolean functionValid = "01234".indexOf(function) != -1;
-
-        return versionValid && classValid && functionValid;
     }
 }

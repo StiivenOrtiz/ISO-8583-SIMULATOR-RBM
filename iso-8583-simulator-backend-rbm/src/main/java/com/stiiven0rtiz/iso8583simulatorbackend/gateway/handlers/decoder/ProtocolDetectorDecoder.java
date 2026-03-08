@@ -5,16 +5,21 @@ import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.TransactionCont
 import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.protocol.ProtocolFrame;
 import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.protocol.ProtocolType;
 import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.protocol.SupportsProtocol;
+import com.stiiven0rtiz.iso8583simulatorbackend.iso.config.IsoFieldsData;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.util.BytesParser.bytesToHex;
+
 
 public class ProtocolDetectorDecoder extends ByteToMessageDecoder {
 
@@ -25,8 +30,9 @@ public class ProtocolDetectorDecoder extends ByteToMessageDecoder {
     private ProtocolFrameDecoder activeDecoder = null;
     private int invalidBytesCount = 0;
     private final int maxInvalidBytes;
+    private final int TPDU_LENGTH;
 
-    public ProtocolDetectorDecoder(List<ProtocolFrameDecoder> decoders, int maxInvalidBytes) {
+    public ProtocolDetectorDecoder(List<ProtocolFrameDecoder> decoders, int maxInvalidBytes, int TPDU_LENGTH) {
         this.decoders = decoders.stream()
                 .collect(Collectors.toMap(
                         d -> d.getClass()
@@ -34,6 +40,7 @@ public class ProtocolDetectorDecoder extends ByteToMessageDecoder {
                                 .value(), Function.identity()
                 ));
         this.maxInvalidBytes = maxInvalidBytes;
+        this.TPDU_LENGTH = TPDU_LENGTH;
     }
 
     @Override
@@ -75,28 +82,35 @@ public class ProtocolDetectorDecoder extends ByteToMessageDecoder {
         if (activeDecoder == null) {
             logger.info("{} - Decoder is null.", thisId);
 
-            if (in.readableBytes() < 1)
+            if (in.readableBytes() < TPDU_LENGTH + 2)
                 return; // wait for more data
 
             logger.info("{} - Starting decoding.", thisId);
 
             in.markReaderIndex();
-            int protocolId = in.readUnsignedByte();
-            logger.info("{} - Protocol ID (HEX): 0x{}, Protocol ID (DEC): {}.", thisId, Integer.toHexString(protocolId), protocolId);
+
+            byte[] headerBytes = new byte[TPDU_LENGTH + 2];
+            in.readBytes(headerBytes);
+
+            // separate TPDU and protocol ID
+            byte[] protocodBytes = Arrays.copyOfRange(headerBytes, TPDU_LENGTH, TPDU_LENGTH + 2);
+
+            logger.info("{} - Protocol bytes (HEX): {}, Protocol bytes (ASCII): {}.", thisId, bytesToHex(protocodBytes), new String(protocodBytes));
+
             // give the buffer back to the decoder
             in.resetReaderIndex();
 
             ProtocolType protocol;
 
             try {
-                protocol = ProtocolType.from(protocolId);
+                protocol = ProtocolDetector.detect(protocodBytes);
                 logger.info("{} - Protocol type: {}", thisId, protocol);
                 invalidBytesCount = 0; // reset if valid
             } catch (IllegalArgumentException e) {
                 invalidBytesCount++;
 
                 logger.warn("{} - Invalid protocol ID {}. Resynchronization Attempt {}/{}",
-                        thisId, protocolId, invalidBytesCount, maxInvalidBytes);
+                        thisId, protocodBytes, invalidBytesCount, maxInvalidBytes);
 
                 in.skipBytes(1);
 
@@ -137,9 +151,9 @@ public class ProtocolDetectorDecoder extends ByteToMessageDecoder {
         TransactionContext transactionContext;
 
         if (protocol == null)
-            transactionContext  = new TransactionContext(in);
+            transactionContext = new TransactionContext(in);
         else
-            transactionContext  = new TransactionContext(in, protocol);
+            transactionContext = new TransactionContext(in, protocol);
 
         ctx.channel().attr(ChannelAttributes.TX_CONTEXT).set(transactionContext);
     }

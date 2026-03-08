@@ -4,14 +4,14 @@ package com.stiiven0rtiz.iso8583simulatorbackend.config.netty;
 
 import com.stiiven0rtiz.iso8583simulatorbackend.gateway.NettyServerController;
 import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.ConstructionNotifier.ConstructionNotifier;
+import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.constructor.HTTPConstructor;
 import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.constructor.Iso8583FrameConstructor;
 import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.constructor.ProtocolDetectorConstructor;
+import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.decoder.HTTPDecoder;
 import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.decoder.Iso8583Decoder;
 import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.decoder.ProtocolDetectorDecoder;
-import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.persistence.ConstructionPersistenceHandler;
 import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.persistence.GlobalErrorHandler;
 import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.persistence.ResponseCPersistenceHandler;
-import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.persistence.ResponsePersistenceHandler;
 import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.response.Iso8583Response;
 import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.response.ProtocolDetectorResponse;
 import com.stiiven0rtiz.iso8583simulatorbackend.iso.config.IsoFieldsData;
@@ -197,15 +197,17 @@ public class NettyConfig {
 
                 ch.pipeline().addLast(executorFramerGroup,
                         new ProtocolDetectorDecoder(List.of(
-                                new Iso8583Decoder(isoFieldsData)),
-                                decoderMaxErrors));
+                                new Iso8583Decoder(isoFieldsData),
+                                new HTTPDecoder(isoFieldsData.getTPDU().length())),
+                                decoderMaxErrors, isoFieldsData.getTPDU().length()));
 
 //                ch.pipeline().addLast(executorConstructorGroup,
 //                        new Iso8583MSGConstructorHandler(isoFieldsData, transactionService));
 
                 ch.pipeline().addLast(executorConstructorGroup,
                         new ProtocolDetectorConstructor(List.of(
-                                new Iso8583FrameConstructor(isoFieldsData))));
+                                new Iso8583FrameConstructor(isoFieldsData),
+                                new HTTPConstructor())));
 
 //                ch.pipeline().addLast(executorPersistenceGroup,
 //                        new ConstructionPersistenceHandler(transactionService));

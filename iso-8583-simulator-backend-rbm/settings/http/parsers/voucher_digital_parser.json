@@ -1,0 +1,213 @@
+{
+  "STX": {
+    "name": "STX",
+    "position": 1,
+    "bytes": 1,
+    "type": "string",
+    "format": "hex",
+    "possible_values": [
+      "02"
+    ],
+    "required": true
+  },
+  "Length": {
+    "name": "Length",
+    "position": 2,
+    "bytes": 2,
+    "type": "number",
+    "format": "bcd",
+    "required": true
+  },
+  "typeTransaction": {
+    "name": "typeTransaction",
+    "position": 3,
+    "bytes": 4,
+    "type": "string",
+    "format": "hex",
+    "possible_values": [
+      "30 30 30 30",
+      "30 30 30 32",
+      "30 30 30 33",
+      "30 30 30 34",
+      "30 30 30 35",
+      "30 30 38 35"
+    ],
+    "required": true
+  },
+  "startSeparator": {
+    "name": "startSeparator",
+    "position": 4,
+    "bytes": 1,
+    "type": "string",
+    "format": "hex",
+    "possible_values": [
+      "1C"
+    ],
+    "required": true
+  },
+  "variableDataFields": {
+    "separatorFields": "1C",
+    "structure": "field + length + data + separatorFields",
+    "fields": [
+      {
+        "name": "3030",
+        "type": "string",
+        "format": "ascii"
+      },
+      {
+        "name": "3031",
+        "type": "string",
+        "format": "ascii"
+      },
+      {
+        "name": "3033",
+        "type": "string",
+        "format": "ascii"
+      },
+      {
+        "name": "3038",
+        "type": "string",
+        "format": "ascii"
+      },
+      {
+        "name": "3039",
+        "type": "string",
+        "format": "ascii"
+      },
+      {
+        "name": "3132",
+        "type": "string",
+        "format": "ascii"
+      },
+      {
+        "name": "3136",
+        "type": "string",
+        "format": "ascii"
+      },
+      {
+        "name": "3138",
+        "type": "string",
+        "format": "ascii"
+      },
+      {
+        "name": "3330",
+        "type": "string",
+        "format": "ascii"
+      },
+      {
+        "name": "3333",
+        "type": "string",
+        "format": "ascii"
+      },
+      {
+        "name": "3334",
+        "type": "string",
+        "format": "ascii"
+      },
+      {
+        "name": "3335",
+        "type": "string",
+        "format": "ascii"
+      },
+      {
+        "name": "3430",
+        "type": "string",
+        "format": "ascii"
+      },
+      {
+        "name": "3431",
+        "type": "string",
+        "format": "ascii"
+      },
+      {
+        "name": "3432",
+        "type": "string",
+        "format": "ascii"
+      },
+      {
+        "name": "3433",
+        "type": "string",
+        "format": "ascii"
+      },
+      {
+        "name": "3434",
+        "type": "string",
+        "format": "ascii"
+      },
+      {
+        "name": "3635",
+        "type": "string",
+        "format": "ascii"
+      },
+      {
+        "name": "3731",
+        "type": "string",
+        "format": "ascii"
+      },
+      {
+        "name": "3733",
+        "type": "string",
+        "format": "ascii"
+      },
+      {
+        "name": "3737",
+        "type": "string",
+        "format": "ascii"
+      },
+      {
+        "name": "3739",
+        "type": "string",
+        "format": "ascii"
+      },
+      {
+        "name": "3830",
+        "type": "string",
+        "format": "ascii"
+      },
+      {
+        "name": "3830",
+        "type": "string",
+        "format": "ascii"
+      },
+      {
+        "name": "3831",
+        "type": "string",
+        "format": "ascii"
+      },
+      {
+        "name": "3937",
+        "type": "string",
+        "format": "ascii"
+      },
+      {
+        "name": "3938",
+        "type": "string",
+        "format": "ascii"
+      },
+      {
+        "name": "3939",
+        "type": "string",
+        "format": "ascii"
+      }
+    ]
+  },
+  "ETX": {
+    "name": "ETX",
+    "position": 5,
+    "bytes": 1,
+    "type": "string",
+    "format": "hex",
+    "possible_values": [
+      "03"
+    ],
+    "required": true
+  },
+  "LRC": {
+    "name": "LRC",
+    "position": 6,
+    "bytes": 1,
+    "type": "string",
+    "format": "hex",
+    "required": true
+  }
+}

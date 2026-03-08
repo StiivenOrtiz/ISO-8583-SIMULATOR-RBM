@@ -49,6 +49,12 @@ public class TransactionContext {
         this.protocolType = protocolType;
     }
 
+    public TransactionContext(byte[] rawRequest, ProtocolType protocolType) {
+        this.receivedAt = LocalDateTime.now();
+        this.rawRequest = toHexNoSpace(rawRequest);
+        this.protocolType = protocolType;
+    }
+
     public void setConstructedMessage() {
         this.constructedAt = LocalDateTime.now();
     }
