@@ -1,4 +1,4 @@
-package com.stiiven0rtiz.iso8583simulatorbackend.logic.HTTP;
+package com.stiiven0rtiz.iso8583simulatorbackend.logic.HTTP.Routes;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -15,18 +15,19 @@ public class RoutesLoader {
 
     private final String thisId = toString().substring(toString().indexOf("@"));
     private final Logger logger = LoggerFactory.getLogger(RoutesLoader.class);
-    private RoutesConfig routesConfig;
+    private PathsConfig routesConfig;
     long lastLength = 0;
     long lastModified = 0;
 
-    protected RoutesConfig LoadConfig() throws Exception {
+    private void LoadConfig() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         File file = new File(httpRoutesFilePath);
 
-        if (hasConfigChanged(file.lastModified(), file.length()))
-            return mapper.readValue(file, RoutesConfig.class);
-        else
-            return routesConfig;
+        if (hasConfigChanged(file.lastModified(), file.length())) {
+            routesConfig = mapper.readValue(file, PathsConfig.class);
+            lastModified = file.lastModified();
+            lastLength = file.length();
+        }
     }
 
     private boolean hasConfigChanged(long newLastModified, long newLastLength) {
@@ -39,5 +40,18 @@ public class RoutesLoader {
         return false;
     }
 
+    public Path getRoute(String path, String method) throws Exception {
+        Path route = null;
 
+        if (routesConfig == null)
+            LoadConfig();
+
+        for (Path r : routesConfig.getPaths())
+            if (r.getPath().equals(path) && r.getMethod().equals(method)) {
+                route = r;
+                break;
+            }
+
+        return route;
+    }
 }

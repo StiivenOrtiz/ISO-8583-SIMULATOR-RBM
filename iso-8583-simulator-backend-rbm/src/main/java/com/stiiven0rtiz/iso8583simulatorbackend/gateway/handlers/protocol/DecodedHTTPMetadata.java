@@ -7,6 +7,7 @@ public record DecodedHTTPMetadata(
         int totalLength,
         boolean chunked,
         int contentLength,
+        int[] crlfPositions,
         byte[] rawMessage
 ) implements ProtocolMetadata {
 }

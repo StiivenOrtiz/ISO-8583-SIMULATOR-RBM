@@ -8,16 +8,14 @@ import io.netty.buffer.ByteBuf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.charset.StandardCharsets;
-
-import static com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.util.BytesParser.bytesToHex;
+import static com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.util.BytesParser.bytesToHexNoSpace;
 
 @SupportsProtocol(ProtocolType.HTTP)
 public class HTTPDecoder implements ProtocolFrameDecoder {
-    String thisId = toString().substring(toString().indexOf("@"));
+
     private static final Logger logger = LoggerFactory.getLogger(HTTPDecoder.class);
 
-    private int tpduLength;
+    private final int tpduLength;
 
     public HTTPDecoder(int tpduLength) {
         this.tpduLength = tpduLength;
@@ -26,23 +24,59 @@ public class HTTPDecoder implements ProtocolFrameDecoder {
     @Override
     public ProtocolFrame decode(ByteBuf in) {
 
-        int headerEnd = findHeaderEnd(in);
+        int readerIndex = in.readerIndex();
+        int writerIndex = in.writerIndex();
+
+        int headerEnd = -1;
+        int contentLength = 0;
+        boolean chunked = false;
+
+        int lineStart = readerIndex;
+
+        int[] crlf = new int[16];
+        int crlfCount = 0;
+
+        // ===== Scan headers once =====
+        for (int i = readerIndex; i < writerIndex - 1; i++) {
+
+            if (in.getByte(i) == '\r' && in.getByte(i + 1) == '\n') {
+
+                int pos = i - readerIndex;
+
+                if (crlfCount == crlf.length) {
+                    int[] tmp = new int[crlf.length * 2];
+                    System.arraycopy(crlf, 0, tmp, 0, crlf.length);
+                    crlf = tmp;
+                }
+
+                crlf[crlfCount++] = pos;
+
+                int lineLength = i - lineStart;
+
+                if (lineLength == 0) {
+                    headerEnd = i + 2;
+                    break;
+                }
+
+                if (matchHeader(in, lineStart, lineLength, "Content-Length")) {
+                    contentLength = parseInt(in, lineStart + 15, lineLength - 15);
+                }
+
+                if (matchHeader(in, lineStart, lineLength, "Transfer-Encoding")) {
+                    chunked = containsChunked(in, lineStart, lineLength);
+                }
+
+                lineStart = i + 2;
+            }
+        }
 
         if (headerEnd == -1)
             return null;
 
-        int headerLength = headerEnd - in.readerIndex();
-
-        byte[] headerBytes = new byte[headerLength];
-        in.getBytes(in.readerIndex(), headerBytes);
-
-        String headers = new String(headerBytes, StandardCharsets.US_ASCII);
-
-        boolean chunked = isChunked(headers);
+        int headerLength = headerEnd - readerIndex;
 
         int bodyLength;
         int totalLength;
-        int contentLength = 0;
 
         if (chunked) {
 
@@ -56,19 +90,26 @@ public class HTTPDecoder implements ProtocolFrameDecoder {
 
         } else {
 
-            contentLength = extractContentLength(headers);
-
             bodyLength = contentLength;
-            totalLength = headerLength + contentLength;
+            totalLength = headerLength + bodyLength;
 
             if (in.readableBytes() < totalLength)
                 return null;
         }
 
-        byte[] fullMessage = new byte[totalLength];
-        in.readBytes(fullMessage);
+        // ===== Copy once =====
+        byte[] message = new byte[totalLength];
+        in.readBytes(message);
 
-        logger.info("{} - Received HTTP message: {}", thisId, bytesToHex(fullMessage).replace(" ", ""));
+        // shrink CRLF array
+        int[] finalCRLF = new int[crlfCount];
+        System.arraycopy(crlf, 0, finalCRLF, 0, crlfCount);
+
+        logger.info("HTTP message: {}", bytesToHexNoSpace(message).replace(" ", ""));
+
+        for (int j : finalCRLF)
+            logger.info("{} - CRLF at position: {}", this, j);
+
 
         DecodedHTTPMetadata metadata = new DecodedHTTPMetadata(
                 tpduLength,
@@ -77,92 +118,94 @@ public class HTTPDecoder implements ProtocolFrameDecoder {
                 totalLength,
                 chunked,
                 contentLength,
-                fullMessage
+                finalCRLF,
+                message
         );
-
-        logger.info("{} - Received HTTP metadata: {}", thisId, metadata);
 
         return new ProtocolFrame(
                 ProtocolType.HTTP,
                 metadata,
-                fullMessage
+                message
         );
     }
 
-    /**
-     * Searches for the end of the HTTP headers.
-     * HTTP headers terminate with the sequence CRLF CRLF (\r\n\r\n).
-     */
-    private int findHeaderEnd(ByteBuf buffer) {
-        int readerIndex = buffer.readerIndex();
-        int writerIndex = buffer.writerIndex();
+    // ===============================
+    // Header utils
+    // ===============================
 
-        for (int i = readerIndex; i < writerIndex - 3; i++)
-            if (buffer.getByte(i) == 0x0D && buffer.getByte(i + 1) == 0x0A && buffer.getByte(i + 2) == 0x0D && buffer.getByte(i + 3) == 0x0A)
-                return i + 4;
+    private boolean matchHeader(ByteBuf buf, int start, int length, String header) {
 
-        return -1;
+        int headerLen = header.length();
+
+        if (length < headerLen)
+            return false;
+
+        for (int i = 0; i < headerLen; i++)
+            if (Character.toLowerCase(buf.getByte(start + i)) != Character.toLowerCase(header.charAt(i)))
+                return false;
+
+        return true;
     }
 
-    /**
-     * Extracts the Content-Length header value.
-     * Returns 0 if the header is not present.
-     */
-    private int extractContentLength(String headers) {
-        for (String line : headers.split("\r\n"))
-            if (line.toLowerCase().startsWith("content-length"))
-                return Integer.parseInt(line.split(":")[1].trim());
+    private boolean containsChunked(ByteBuf buf, int start, int length) {
 
-        return 0;
-    }
+        for (int i = start; i < start + length - 6; i++) {
 
-    /**
-     * Checks if the request uses chunked transfer encoding.
-     */
-    private boolean isChunked(String headers) {
-        for (String line : headers.split("\r\n"))
-            if (line.toLowerCase().startsWith("transfer-encoding") && line.toLowerCase().contains("chunked"))
+            if ((buf.getByte(i) == 'c' || buf.getByte(i) == 'C')
+                    && (buf.getByte(i + 1) == 'h' || buf.getByte(i + 1) == 'H')
+                    && (buf.getByte(i + 2) == 'u' || buf.getByte(i + 2) == 'U')
+                    && (buf.getByte(i + 3) == 'n' || buf.getByte(i + 3) == 'N')
+                    && (buf.getByte(i + 4) == 'k' || buf.getByte(i + 4) == 'K')
+                    && (buf.getByte(i + 5) == 'e' || buf.getByte(i + 5) == 'E')
+                    && (buf.getByte(i + 6) == 'd' || buf.getByte(i + 6) == 'D'))
                 return true;
+        }
 
         return false;
     }
 
-    /**
-     * Parses the chunked body to determine the end of the message.
-     * Each chunk follows the format:
-     * <p>
-     * <chunk-size in hex>\r\n
-     * <chunk-data>\r\n
-     * <p>
-     * The final chunk has size 0.
-     */
+    private int parseInt(ByteBuf buf, int start, int length) {
+
+        int value = 0;
+
+        for (int i = start; i < start + length; i++) {
+
+            byte b = buf.getByte(i);
+
+            if (b >= '0' && b <= '9')
+                value = value * 10 + (b - '0');
+        }
+
+        return value;
+    }
+
+    // ===============================
+    // Chunked parsing
+    // ===============================
+
     private int findChunkedEnd(ByteBuf buffer, int startIndex) {
+
         int index = startIndex;
 
         while (true) {
-            // Find end of the line containing the chunk size
+
             int lineEnd = findCRLF(buffer, index);
 
             if (lineEnd == -1)
                 return -1;
 
-            // Parse chunk size (hexadecimal)
-            String sizeHex = buffer.toString(index, lineEnd - index, StandardCharsets.US_ASCII).trim();
-            int chunkSize = Integer.parseInt(sizeHex, 16);
+            int chunkSize = parseHex(buffer, index, lineEnd - index);
 
-            // Move index to the beginning of chunk data
             index = lineEnd + 2;
 
-            // A chunk size of 0 indicates the end of the body
             if (chunkSize == 0) {
-                // Ensure the final CRLF exists
+
                 if (buffer.writerIndex() < index + 2)
                     return -1;
 
                 return index + 2;
             }
 
-            // Skip chunk data + trailing CRLF
             index += chunkSize + 2;
 
             if (buffer.writerIndex() < index)
@@ -170,14 +213,31 @@ public class HTTPDecoder implements ProtocolFrameDecoder {
         }
     }
 
-    /**
-     * Finds the next CRLF sequence starting from a given index.
-     */
+    private int parseHex(ByteBuf buf, int start, int length) {
+
+        int value = 0;
+
+        for (int i = start; i < start + length; i++) {
+
+            byte b = buf.getByte(i);
+
+            if (b >= '0' && b <= '9')
+                value = (value << 4) + (b - '0');
+            else if (b >= 'a' && b <= 'f')
+                value = (value << 4) + (b - 'a' + 10);
+            else if (b >= 'A' && b <= 'F')
+                value = (value << 4) + (b - 'A' + 10);
+        }
+
+        return value;
+    }
+
     private int findCRLF(ByteBuf buffer, int index) {
+
         int writerIndex = buffer.writerIndex();
 
         for (int i = index; i < writerIndex - 1; i++)
-            if (buffer.getByte(i) == 0x0D && buffer.getByte(i + 1) == 0x0A)
+            if (buffer.getByte(i) == '\r' && buffer.getByte(i + 1) == '\n')
                 return i;
 
         return -1;

@@ -21,4 +21,11 @@ public class BytesParser {
             sb.append(String.format("%02X ", b));
         return sb.toString().trim();
     }
+
+    public static String bytesToHexNoSpace(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes)
+            sb.append(String.format("%02X", b));
+        return sb.toString();
+    }
 }

@@ -16,6 +16,7 @@ import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.response.Iso858
 import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.response.ProtocolDetectorResponse;
 import com.stiiven0rtiz.iso8583simulatorbackend.iso.config.IsoFieldsData;
 import com.stiiven0rtiz.iso8583simulatorbackend.logic.ArtificialDelayDetect;
+import com.stiiven0rtiz.iso8583simulatorbackend.logic.HTTP.HTTPConfig;
 import com.stiiven0rtiz.iso8583simulatorbackend.logic.ISOResponseLoader;
 import com.stiiven0rtiz.iso8583simulatorbackend.logic.ResponseCodeLoader;
 import com.stiiven0rtiz.iso8583simulatorbackend.services.TransactionService;
@@ -176,6 +177,7 @@ public class NettyConfig {
             ISOResponseLoader isoResponseLoader,
             ArtificialDelayDetect artificialDelayDetect,
             ResponseCodeLoader responseCodeLoader,
+            HTTPConfig httpConfig,
             EventExecutorGroup executorFramerGroup,
             EventExecutorGroup executorConstructorGroup,
             EventExecutorGroup executorResponseGroup,
@@ -207,7 +209,7 @@ public class NettyConfig {
                 ch.pipeline().addLast(executorConstructorGroup,
                         new ProtocolDetectorConstructor(List.of(
                                 new Iso8583FrameConstructor(isoFieldsData),
-                                new HTTPConstructor())));
+                                new HTTPConstructor(httpConfig))));
 
 //                ch.pipeline().addLast(executorPersistenceGroup,
 //                        new ConstructionPersistenceHandler(transactionService));

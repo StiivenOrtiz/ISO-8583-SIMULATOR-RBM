@@ -3,8 +3,8 @@
     {
       "method": "PUT",
       "path": "/Terminal/Voucher",
-      "requestSchema": "not mapped",
-      "responseSchema": "not mapped"
+      "requestSchema": "not_mapped",
+      "responseSchema": "not_mapped"
     }
   ]
 }
