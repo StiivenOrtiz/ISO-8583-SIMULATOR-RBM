@@ -27,6 +27,7 @@ public class TransactionMapper {
                 getFranchiseLogo(entity.getFranchise()),
                 entity.getTransactionType(),
                 entity.getMti(),
+                entity.getProtocol(),
                 entity.getStatus().name(),
                 entity.getResponseCode(),
                 entity.getAuthCode(),

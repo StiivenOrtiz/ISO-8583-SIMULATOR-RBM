@@ -1,6 +1,7 @@
 package com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.ConstructionNotifier;
 
 import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.TransactionContext;
+import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.protocol.ConstructedHTTPMetadata;
 import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.protocol.ConstructedIso8583Metadata;
 import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.protocol.ProtocolFrame;
 import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.protocol.ProtocolType;
@@ -58,7 +59,23 @@ public class ConstructionNotifier extends SimpleChannelInboundHandler<ProtocolFr
                     promise.setFailure(e);
                 }
 
-            }
+            } else if (frame.protocol() == ProtocolType.HTTP) {
+
+                try{
+                    Transaction tx = transactionService.generateHTTPConstruction(
+                            ((ConstructedHTTPMetadata) frame.metadata()).drawTransaction(),
+                            context.getReceivedAt(),
+                            context.getConstructedAt()
+                    );
+                    logger.info("{} - Generated and notified construction for HTTP transaction UUID: {}", thisId, tx.getUuid());
+                    promise.setSuccess(tx);
+                } catch (Exception e) {
+                    logger.error("{} - Error generating HTTP construction: {}", thisId, e.getMessage(), e);
+                    promise.setFailure(e);
+                }
+
+            } else
+                logger.error("{} - Invalid protocol: {}", thisId, frame.protocol());
         }
 
         ctx.fireChannelRead(frame);

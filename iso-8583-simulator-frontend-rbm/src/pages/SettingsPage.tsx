@@ -14,6 +14,7 @@ import { TerminalsTable } from "@/components/TerminalsTable";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect } from "react";
 import { apiGet, apiPost, ApiTerminal, ApiConfigResponse } from "@/lib/api";
+import { useLanguage } from "@/i18n/LanguageContext";
 
 interface Terminal {
   idDB: string;
@@ -34,7 +35,7 @@ interface ResponseConfig {
 
 const Settings = () => {
   const { toast } = useToast();
-  
+  const { t } = useLanguage();
   // Terminals state
   const [terminals, setTerminals] = useState<Terminal[]>([]);
   const [loadingSettings, setLoadingSettings] = useState(true);
@@ -92,8 +93,8 @@ const Settings = () => {
     } catch (error) {
       console.error("Error loading terminals", error);
       toast({
-        title: "Error",
-        description: "Failed to load terminals",
+        title: t.settings.error,
+        description: t.settings.failedLoadTerminals,
         variant: "destructive",
       });
     } finally {
@@ -152,16 +153,9 @@ const Settings = () => {
 
       setNewTerminalId("");
 
-      toast({
-        title: "Terminal added",
-        description: "Terminal created successfully",
-      });
+      toast({ title: t.settings.terminalAdded, description: t.settings.terminalCreated });
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to create terminal",
-        variant: "destructive",
-      });
+      toast({ title: t.settings.error, description: t.settings.failedCreateTerminal, variant: "destructive" });
     }
   };
 
@@ -173,16 +167,9 @@ const Settings = () => {
       await apiPost(`/terminals/remove?id=${idDB}`);
       await loadTerminals();
 
-      toast({
-        title: "Terminal removed",
-        description: `Terminal ${idDB} removed.`,
-      });
+      toast({ title: t.settings.terminalRemoved, description: `Terminal ${idDB} removed.` });
     } catch (error) {
-      toast({
-        title: "Error",
-        description: `Failed to remove terminal ${idDB}`,
-        variant: "destructive",
-      });
+      toast({ title: t.settings.error, description: `Failed to remove terminal ${idDB}`, variant: "destructive" });
     }
   };
 
@@ -195,10 +182,7 @@ const Settings = () => {
           `/terminals/globaldelay?seconds=${delayConfig.globalValue}`
         );
 
-        toast({
-          title: "Delay configuration updated",
-          description: `Global delay set to ${delayConfig.globalValue} seconds`,
-        });
+        toast({ title: t.settings.delayConfigUpdated, description: `${t.settings.globalDelaySet} ${delayConfig.globalValue} ${t.settings.seconds}` });
 
         return;
       }
@@ -217,16 +201,9 @@ const Settings = () => {
         },
       }));
 
-      toast({
-        title: "Delay configuration updated",
-        description: `Terminal ${selectedTerminalForDelay} set with ${draftDelay} seconds of delay`,
-      });
+      toast({ title: t.settings.delayConfigUpdated, description: `Terminal ${selectedTerminalForDelay} ${t.settings.terminalDelaySet} ${draftDelay} ${t.settings.secondsOfDelay}` });
     } catch {
-      toast({
-        title: "Error",
-        description: "Failed to save delay configuration",
-        variant: "destructive",
-      });
+      toast({ title: t.settings.error, description: t.settings.failedSaveDelay, variant: "destructive" });
     }
   };
 
@@ -241,10 +218,7 @@ const Settings = () => {
           `/terminals/globalresponsecode?code=${responseConfig.globalValue}`
         );
 
-        toast({
-          title: "Response configuration updated",
-          description: `Global response set to ${responseConfig.globalValue}`,
-        });
+        toast({ title: t.settings.responseConfigUpdated, description: `${t.settings.globalResponseSet} ${responseConfig.globalValue}` });
 
         return;
       }
@@ -263,16 +237,9 @@ const Settings = () => {
         },
       }));
 
-      toast({
-        title: "Response configuration updated",
-        description: `Terminal ${selectedTerminalForResponse} set with response code ${draftResponse}`,
-      });
+      toast({ title: t.settings.responseConfigUpdated, description: `Terminal ${selectedTerminalForResponse} ${t.settings.terminalResponseSet} ${draftResponse}` });
     } catch {
-      toast({
-        title: "Error",
-        description: "Failed to save response configuration",
-        variant: "destructive",
-      });
+      toast({ title: t.settings.error, description: t.settings.failedSaveResponse, variant: "destructive" });
     }
   };
 
@@ -289,8 +256,8 @@ const Settings = () => {
   return (
     <div className="space-y-6 pb-8">
       <div>
-        <h1 className="text-3xl font-bold text-foreground">Settings</h1>
-        <p className="text-muted-foreground mt-1">Configure terminals and transaction behavior</p>
+        <h1 className="text-3xl font-bold text-foreground">{t.settings.title}</h1>
+        <p className="text-muted-foreground mt-1">{t.settings.subtitle}</p>
       </div>
 
       {loadingSettings ? (
@@ -309,14 +276,14 @@ const Settings = () => {
         {/* Terminals Section */}
         <Card className="shadow-sm">
           <CardHeader className="border-b bg-muted/30">
-            <CardTitle className="text-lg text-center">Terminals</CardTitle>
+            <CardTitle className="text-lg text-center">{t.settings.terminals}</CardTitle>
           </CardHeader>
           <CardContent className="p-6 space-y-6">
             {/* Add Terminal */}
             <div className="p-4 border-2 border-border rounded-lg">
               <div className="flex items-center gap-2">
                 <Input
-                  placeholder="Enter Terminal ID"
+                  placeholder={t.settings.enterTerminalId}
                   value={newTerminalId}
                   maxLength={8}
                   onChange={(e) => {
@@ -352,16 +319,16 @@ const Settings = () => {
                       <span className="truncate">
                         {selectedTerminalForBrowse
                           ? terminals.find((terminal) => terminal.terminalID === selectedTerminalForBrowse)?.terminalID
-                          : "Search Terminal ID"}
+                          : t.settings.searchTerminalId}
                       </span>
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-[var(--radix-popover-trigger-width)] max-w-[300px] p-0" align="start" sideOffset={4}>
                     <Command>
-                      <CommandInput placeholder="Search terminal..." />
+                      <CommandInput placeholder={t.filters.searchTerminal} />
                       <CommandList>
-                        <CommandEmpty>No terminal found.</CommandEmpty>
+                        <CommandEmpty>{t.filters.noTerminalFound}</CommandEmpty>
                         <CommandGroup>
                           {terminals.map((terminal) => (
                             <CommandItem
@@ -407,14 +374,14 @@ const Settings = () => {
         {/* Transaction Delays Section */}
         <Card className="shadow-sm">
           <CardHeader className="border-b bg-muted/30">
-            <CardTitle className="text-lg text-center">Transaction Delays</CardTitle>
+            <CardTitle className="text-lg text-center">{t.settings.transactionDelays}</CardTitle>
           </CardHeader>
           <CardContent className="p-6 space-y-6">
             {/* Global Delay */}
             <div className="p-4 border-2 border-border rounded-lg">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <Label className="text-base font-medium">Global</Label>
+                  <Label className="text-base font-medium">{t.settings.global}</Label>
                   <div className="flex items-center gap-3">
                     <Switch
                       checked={delayConfig.globalEnabled}
@@ -427,8 +394,8 @@ const Settings = () => {
                             );
 
                             toast({
-                              title: "Global delay enabled",
-                              description: `All transactions will be delayed ${delayConfig.globalValue}s`,
+                              title: t.settings.globalDelayEnabled,
+                              description: `${t.settings.allDelayed} ${delayConfig.globalValue}s`,
                             });
                           } else {
                             // 🔹 Apagar global inmediatamente
@@ -437,8 +404,8 @@ const Settings = () => {
                             );
 
                             toast({
-                              title: "Global delay disabled",
-                              description: "Per-terminal delay configuration is now active",
+                              title: t.settings.globalDelayDisabled,
+                              description: t.settings.perTerminalDelay,
                             });
                           }
 
@@ -448,8 +415,8 @@ const Settings = () => {
                           }));
                         } catch {
                           toast({
-                            title: "Error",
-                            description: "Failed to update global delay",
+                            title: t.settings.error,
+                            description: t.settings.failedUpdateGlobalDelay,
                             variant: "destructive",
                           });
                         }
@@ -488,16 +455,16 @@ const Settings = () => {
                       <span className="truncate">
                         {selectedTerminalForDelay
                           ? terminals.find((terminal) => terminal.terminalID === selectedTerminalForDelay)?.terminalID
-                          : "Search Terminal ID"}
+                          : t.settings.searchTerminalId}
                       </span>
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-[var(--radix-popover-trigger-width)] max-w-[300px] p-0" align="start" sideOffset={4}>
                     <Command>
-                      <CommandInput placeholder="Search terminal..." />
+                      <CommandInput placeholder={t.filters.searchTerminal} />
                       <CommandList>
-                        <CommandEmpty>No terminal found.</CommandEmpty>
+                        <CommandEmpty>{t.filters.noTerminalFound}</CommandEmpty>
                         <CommandGroup>
                           {terminals.map((terminal) => (
                               <CommandItem
@@ -543,7 +510,7 @@ const Settings = () => {
               <Button 
               onClick={() => saveDelayConfig()} 
               className="px-8">
-                Save
+                {t.settings.save}
               </Button>
             </div>
           </CardContent>
@@ -552,14 +519,14 @@ const Settings = () => {
         {/* Transaction Responses Section */}
         <Card className="shadow-sm">
           <CardHeader className="border-b bg-muted/30">
-            <CardTitle className="text-lg text-center">Transaction Responses</CardTitle>
+            <CardTitle className="text-lg text-center">{t.settings.transactionResponses}</CardTitle>
           </CardHeader>
           <CardContent className="p-6 space-y-6">
             {/* Global Response */}
             <div className="p-4 border-2 border-border rounded-lg">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <Label className="text-base font-medium">Global</Label>
+                  <Label className="text-base font-medium">{t.settings.global}</Label>
                   <div className="flex items-center gap-3">
                     <Switch
                       checked={responseConfig.globalEnabled}
@@ -572,8 +539,8 @@ const Settings = () => {
                             );
 
                             toast({
-                              title: "Global response enabled",
-                              description: `All transactions will respond with code ${responseConfig.globalValue}`,
+                              title: t.settings.globalResponseEnabled,
+                              description: `${t.settings.allRespond} ${responseConfig.globalValue}`,
                             });
                           } else {
                             // 🔹 Apagar global inmediatamente
@@ -582,8 +549,8 @@ const Settings = () => {
                             );
 
                             toast({
-                              title: "Global response disabled",
-                              description: "Per-terminal response configuration is now active",
+                              title: t.settings.globalResponseDisabled,
+                              description: t.settings.perTerminalResponse,
                             });
                           }
 
@@ -593,8 +560,8 @@ const Settings = () => {
                           }));
                         } catch {
                           toast({
-                            title: "Error",
-                            description: "Failed to update global response",
+                            title: t.settings.error,
+                            description: t.settings.failedUpdateGlobalResponse,
                             variant: "destructive",
                           });
                         }
@@ -637,16 +604,16 @@ const Settings = () => {
                       <span className="truncate">
                         {selectedTerminalForResponse
                           ? terminals.find((terminal) => terminal.terminalID === selectedTerminalForResponse)?.terminalID
-                          : "Search Terminal ID"}
+                          : t.settings.searchTerminalId}
                       </span>
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-[var(--radix-popover-trigger-width)] max-w-[300px] p-0" align="start" sideOffset={4}>
                     <Command>
-                      <CommandInput placeholder="Search terminal..." />
+                      <CommandInput placeholder={t.filters.searchTerminal} />
                       <CommandList>
-                        <CommandEmpty>No terminal found.</CommandEmpty>
+                        <CommandEmpty>{t.filters.noTerminalFound}</CommandEmpty>
                         <CommandGroup>
                           {terminals.map((terminal) => (
                             <CommandItem
@@ -705,7 +672,7 @@ const Settings = () => {
       {/* Terminals Table */}
       <Card className="shadow-sm">
         <CardHeader className="border-b bg-muted/30">
-          <CardTitle className="text-lg text-center">Terminals Overview</CardTitle>
+          <CardTitle className="text-lg text-center">{t.settings.terminalsOverview}</CardTitle>
         </CardHeader>
         <CardContent className="p-6">
           <TerminalsTable

@@ -1,3 +1,5 @@
+export type TransactionProtocol = 'ISO8583' | 'HTTP';
+
 export interface Transaction {
   id: string;
   uuid: string;
@@ -8,6 +10,7 @@ export interface Transaction {
   franchiseLogo: string;
   transactionType: string;
   mti: string;
+  protocol?: TransactionProtocol;
   status: "success" | "failed" | "pending";
   responseCode: string;
   authCode?: string; // P38

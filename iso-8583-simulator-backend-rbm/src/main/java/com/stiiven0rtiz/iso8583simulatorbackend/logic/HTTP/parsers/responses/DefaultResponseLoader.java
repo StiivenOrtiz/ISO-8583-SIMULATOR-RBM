@@ -9,8 +9,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 
-import static com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.util.HexParser.StringHexToBytes;
-
 @Component
 @HTTPResponseParserType(HTTPResponsesParsers.NOT_MAPPED)
 public non-sealed class DefaultResponseLoader implements HTTPResponseParser {
@@ -27,7 +25,7 @@ public non-sealed class DefaultResponseLoader implements HTTPResponseParser {
         ObjectMapper mapper = new ObjectMapper();
         File file = new File(httpDefaultResponseFilePath);
 
-        if (hasConfigChanged(file.lastModified(), file.length())) {
+        if (defaultResponse == null || hasConfigChanged(file.lastModified(), file.length())) {
             defaultResponse = mapper.readValue(file, DefaultResponse.class);
             lastModified = file.lastModified();
             lastLength = file.length();
@@ -46,11 +44,11 @@ public non-sealed class DefaultResponseLoader implements HTTPResponseParser {
 
 
     @Override
-    public byte[] parseHTTPMessage(Transaction tx) throws Exception {
-        if (defaultResponse == null)
-            LoadConfig();
+    public Transaction parseHTTPMessage(Transaction transaction) throws Exception {
+        LoadConfig();
 
         String hexS;
+        Transaction tx = new Transaction();
 
         if (defaultResponse.getRawSpacesMode())
             hexS = defaultResponse.getRaw().replace(" ", "");
@@ -59,6 +57,6 @@ public non-sealed class DefaultResponseLoader implements HTTPResponseParser {
 
         tx.setHexResponse(hexS);
 
-        return StringHexToBytes(hexS);
+        return tx;
     }
 }

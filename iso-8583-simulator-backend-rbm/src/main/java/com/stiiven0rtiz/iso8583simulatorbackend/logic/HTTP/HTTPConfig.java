@@ -49,7 +49,7 @@ public class HTTPConfig {
     }
 
 
-    public ConstructedHTTPMetadata getHTTPDefinition(String method, String path) throws Exception {
+    public HTTPDefinition getHTTPDefinition(String method, String path) throws Exception {
         Path route = routesLoader.getRoute(method, path);
 
         if (route == null)
@@ -64,6 +64,6 @@ public class HTTPConfig {
         if (requestParser == null || responseParser == null)
             throw new Exception("No parser found for request schema: " + route.getRequestSchema() + " or response schema: " + route.getResponseSchema());
 
-        return new ConstructedHTTPMetadata(requestParser, responseParser);
+        return new HTTPDefinition(requestParser, responseParser);
     }
 }

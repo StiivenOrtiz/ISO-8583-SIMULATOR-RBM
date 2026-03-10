@@ -14,6 +14,7 @@ import static com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.util.Byt
 public class HTTPDecoder implements ProtocolFrameDecoder {
 
     private static final Logger logger = LoggerFactory.getLogger(HTTPDecoder.class);
+    String thisId = toString().substring(toString().indexOf("@"));
 
     private final int tpduLength;
 
@@ -108,7 +109,7 @@ public class HTTPDecoder implements ProtocolFrameDecoder {
         logger.info("HTTP message: {}", bytesToHexNoSpace(message).replace(" ", ""));
 
         for (int j : finalCRLF)
-            logger.info("{} - CRLF at position: {}", this, j);
+            logger.info("{} - CRLF at position: {}", thisId, j);
 
 
         DecodedHTTPMetadata metadata = new DecodedHTTPMetadata(

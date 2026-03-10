@@ -8,7 +8,7 @@ import java.util.Map;
  * <p>
  * Data Transfer Object for live transaction data over WebSocket.
  *
- * @version 1.2
+ * @version 1.3
  */
 public record TransactionDto(
         String id,
@@ -20,6 +20,7 @@ public record TransactionDto(
         String franchiseLogo,
         String transactionType,
         String mti,
+        String protocol,
         String status,
         String responseCode,
         String authCode,

@@ -403,4 +403,36 @@ public class TransactionService {
 
         publisher.publishEvent(new TransactionCSavedEvent(tx));
     }
+
+    public Transaction generateHTTPConstruction(Transaction transaction, LocalDateTime receivedAt, LocalDateTime constructedAt) {
+        logger.debug("GenerateHTTPConstruction transaction={}, receivedAt={}", transaction, receivedAt);
+
+        transaction.setUuid(UUID.randomUUID().toString());
+        transaction.setProtocol(ProtocolType.HTTP.name());
+        transaction.setStatus(MessageStatus.pending);
+        transaction.setReceivedAt(receivedAt);
+        transaction.setConstructedAt(constructedAt);
+
+        publisher.publishEvent(new TransactionConstructed(transaction));
+
+        return transaction;
+    }
+
+    public void saveHTTPResponse(Transaction tx, Transaction responseParer, int artificialDelay, String rawData, LocalDateTime respondedAt, LocalDateTime processedAt) {
+        logger.debug("SaveHTTPResponse tx UUID={}, responseParer={}, artificialDelay={}, rawData={}", tx.getUuid(), responseParer, artificialDelay, rawData);
+
+        tx.setTxTimestamp(respondedAt);
+        tx.setStatus(MessageStatus.success);
+
+        tx.setResponseCode(responseParer.getResponseCode());
+
+        tx.setHexResponse(rawData);
+        tx.setArtificialDelay(artificialDelay);
+        tx.setProcessedAt(processedAt);
+        tx.setResponseSentAt(respondedAt);
+
+        tx = repository.save(tx);
+
+        publisher.publishEvent(new TransactionCSavedEvent(tx));
+    }
 }

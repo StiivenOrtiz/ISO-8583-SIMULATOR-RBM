@@ -120,7 +120,7 @@ public class Iso8583FrameConstructor implements ProtocolFrameConstructor {
         // release the copied buffer
         msgCopy.release();
 
-        ConstructedIso8583Metadata constructedMetadata = new ConstructedIso8583Metadata(isoMsg, LocalDateTime.now());
+        ConstructedIso8583Metadata constructedMetadata = new ConstructedIso8583Metadata(isoMsg);
         input.context().setConstructedMessage();
 
         return new ProtocolFrame(ProtocolType.ISO8583, constructedMetadata, input.context());

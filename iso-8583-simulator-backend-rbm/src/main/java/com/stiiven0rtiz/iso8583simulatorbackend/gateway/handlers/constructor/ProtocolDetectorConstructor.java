@@ -1,7 +1,5 @@
 package com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.constructor;
 
-import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.POJO.ChannelAttributes;
-import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.TransactionContext;
 import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.protocol.ProtocolFrame;
 import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.protocol.ProtocolType;
 import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.protocol.SupportsProtocol;
@@ -40,7 +38,7 @@ public class ProtocolDetectorConstructor extends SimpleChannelInboundHandler<Pro
 
         ProtocolFrameConstructor constructor = constructors.get(detectedProtocol);
 
-        if (constructor == null){
+        if (constructor == null) {
             logger.error("{} - No constructor found for detected protocol: {}", thisId, detectedProtocol);
             throw new IllegalStateException("No decoder for protocol " + detectedProtocol);
         }

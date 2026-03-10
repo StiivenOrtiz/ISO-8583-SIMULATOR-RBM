@@ -1,10 +1,7 @@
 package com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.persistence;
 
 import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.TransactionContext;
-import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.protocol.ProtocolFrame;
-import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.protocol.ProtocolType;
-import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.protocol.ResponseMSGIso8583;
-import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.protocol.ResponseMetadata;
+import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.protocol.*;
 import com.stiiven0rtiz.iso8583simulatorbackend.models.Transaction;
 import com.stiiven0rtiz.iso8583simulatorbackend.services.TransactionService;
 import io.netty.channel.ChannelHandlerContext;
@@ -65,9 +62,29 @@ public class ResponseCPersistenceHandler extends SimpleChannelInboundHandler<Pro
                             logger.error("{} - Error saving response for transaction UUID: {}", thisId, tx.getUuid(), e);
                         }
                     });
-                }
-            } else
-                logger.error("{} - Transaction promise failed. Cannot save response. (Transaction construction failed)", thisId, future.cause());
+                } else if (protocol == ProtocolType.HTTP) {
+                    ctx.executor().execute(() -> {
+                        try {
+                            ResponseMetadata responseMetadata = (ResponseMetadata) frame.metadata();
+
+                            transactionService.saveHTTPResponse(
+                                    tx,
+                                    ((ResponseMSGHTTP) responseMetadata.getResponseMSG()).transaction(),
+                                    responseMetadata.getArtificialDelay(),
+                                    responseMetadata.getRawData(),
+                                    context.getRespondedAt(),
+                                    context.getProcessedAt()
+                            );
+
+                            logger.info("{} - HTTP Response for transaction UUID: {} saved successfully.", thisId, tx.getUuid());
+
+                        } catch (Exception e) {
+                            logger.error("{} - Error saving HTTP response for transaction UUID: {}", thisId, tx.getUuid(), e);
+                        }
+                    });
+                } else
+                    logger.error("{} - Transaction promise failed. Cannot save response. (Transaction construction failed)", thisId, future.cause());
+            }
         });
     }
 }

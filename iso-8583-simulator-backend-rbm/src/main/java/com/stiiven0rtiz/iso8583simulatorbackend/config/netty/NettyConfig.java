@@ -12,6 +12,7 @@ import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.decoder.Iso8583
 import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.decoder.ProtocolDetectorDecoder;
 import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.persistence.GlobalErrorHandler;
 import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.persistence.ResponseCPersistenceHandler;
+import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.response.HTTPResponse;
 import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.response.Iso8583Response;
 import com.stiiven0rtiz.iso8583simulatorbackend.gateway.handlers.response.ProtocolDetectorResponse;
 import com.stiiven0rtiz.iso8583simulatorbackend.iso.config.IsoFieldsData;
@@ -222,7 +223,8 @@ public class NettyConfig {
 
                 ch.pipeline().addLast(executorResponseGroup,
                         new ProtocolDetectorResponse(List.of(
-                                new Iso8583Response(isoFieldsData, isoResponseLoader, responseCodeLoader)
+                                new Iso8583Response(isoFieldsData, isoResponseLoader, responseCodeLoader),
+                                new HTTPResponse()
                         ), artificialDelayDetect));
 
 //                ch.pipeline().addLast(executorPersistenceGroup,
