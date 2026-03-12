@@ -105,8 +105,17 @@ public class Transaction {
     @JsonManagedReference
     private List<Iso8583Field> iso8583Fields = new ArrayList<>();
 
+    @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<DigitalVoucherField> digitalVoucherFields = new ArrayList<>();
+
     public void addField(Iso8583Field field) {
         iso8583Fields.add(field);
+        field.setTransaction(this);
+    }
+
+    public void addDigitalVoucherField(DigitalVoucherField field) {
+        digitalVoucherFields.add(field);
         field.setTransaction(this);
     }
 }

@@ -11,6 +11,7 @@ import com.stiiven0rtiz.iso8583simulatorbackendrbm.events.TransactionSavedEvent;
 import com.stiiven0rtiz.iso8583simulatorbackendrbm.gateway.handlers.protocol.ProtocolType;
 import com.stiiven0rtiz.iso8583simulatorbackendrbm.iso.message.Iso8583Msg;
 import com.stiiven0rtiz.iso8583simulatorbackendrbm.iso.message.ValidatedVariable;
+import com.stiiven0rtiz.iso8583simulatorbackendrbm.logic.HTTP.model.digitalvoucher.ParsedDigitalVoucherField;
 import com.stiiven0rtiz.iso8583simulatorbackendrbm.logic.TransactionNamesLoader;
 import com.stiiven0rtiz.iso8583simulatorbackendrbm.mapper.TransactionMapper;
 import com.stiiven0rtiz.iso8583simulatorbackendrbm.models.*;
@@ -221,9 +222,12 @@ public class TransactionService {
             tx.setTransactionType("unknown");
         }
 
-        tx.setMti(isoMsg.getMTI().getValue().replace(" ", ""));
+        if (isoMsg.getMTI() != null)
+            tx.setMti(isoMsg.getMTI().getValue().replace(" ", ""));
         tx.setStatus(MessageStatus.pending);
-        tx.setBitmapPrimary(isoMsg.getBitmap().getValue().replace(" ", ""));
+
+        if (isoMsg.getBitmap() != null)
+            tx.setBitmapPrimary(isoMsg.getBitmap().getValue().replace(" ", ""));
 
         Object secondaryBitmap = isoMsg.getDataElement("P1");
 
@@ -236,10 +240,64 @@ public class TransactionService {
         tx.setReceivedAt(receivedAt);
         tx.setConstructedAt(constructedAt);
 
-        generateISOFields(tx, isoMsg, IsoMessageType.REQUEST);
+        generateISOFields(tx, isoMsg, MessageType.REQUEST);
 
         return tx;
     }
+
+//    private Transaction buildTransaction(Iso8583Msg isoMsg, LocalDateTime receivedAt, LocalDateTime constructedAt) {
+//        logger.debug("SaveConstruction isoMsg={}, receivedAt={}", isoMsg, receivedAt);
+//
+//        Transaction tx = new Transaction();
+//        tx.setUuid(UUID.randomUUID().toString());
+//        tx.setProtocol(ProtocolType.ISO8583.name());
+//
+//        tx.setTerminal((String) isoMsg.getDataElement("P41"));
+//
+//        if(isoMsg.getDataElement("P4") != null)
+//            tx.setAmount(new BigDecimal((String) isoMsg.getDataElement("P4")).movePointLeft(2));
+//
+//        Object track2 = isoMsg.getDataElement("P35");
+//
+//        if (track2 != null)
+//            tx.setFranchise(binChecker.getFranchiseByBIN(
+//                    IsoUtils.getBinFromTrack2((String) track2)));
+//        else
+//            tx.setFranchise("none");
+//
+//        String id = isoMsg.getMTI().getValue().replace(" ", "") + isoMsg.getDataElement("P3");
+//        TransactionNamesConfig transactionType = transactionNamesLoader.getTransactionNames();
+//
+//        if (transactionType != null && transactionType.getNames() != null) {
+//            String name = transactionType.getNames().get(id);
+//            tx.setTransactionType(Objects.requireNonNullElse(name, "unknown"));
+//        } else {
+//            tx.setTransactionType("unknown");
+//        }
+//
+//        if (isoMsg.getMTI() != null)
+//            tx.setMti(isoMsg.getMTI().getValue().replace(" ", ""));
+//        tx.setStatus(MessageStatus.pending);
+//
+//        if (isoMsg.getBitmap() != null)
+//            tx.setBitmapPrimary(isoMsg.getBitmap().getValue().replace(" ", ""));
+//
+//        Object secondaryBitmap = isoMsg.getDataElement("P1");
+//
+//        if (secondaryBitmap != null) {
+//            logger.debug("{} - Secondary bitmap found: {}", thisId, secondaryBitmap);
+//            tx.setBitmapSecondary(((String) secondaryBitmap).replace(" ", ""));
+//        }
+//
+//        tx.setHexRequest(isoMsg.getRawData());
+//        tx.setReceivedAt(receivedAt);
+//        tx.setConstructedAt(constructedAt);
+//
+//        generateISOFields(tx, isoMsg, IsoMessageType.REQUEST);
+//
+//        return tx;
+//    }
+
 
     /**
      * Save a new construction transaction based on the received ISO 8583 message.
@@ -268,7 +326,20 @@ public class TransactionService {
         return tx;
     }
 
-    private void generateISOFields(Transaction tx, Iso8583Msg isoMsg, IsoMessageType type) {
+    public static void generateVDFields(Transaction tx, Map<String, ParsedDigitalVoucherField> fields, MessageType type) {
+
+        for  (Map.Entry<String, ParsedDigitalVoucherField> entry : fields.entrySet()) {
+            DigitalVoucherField dvf = new DigitalVoucherField();
+            dvf.setMessageType(type);
+            dvf.setFieldId(entry.getKey());
+            dvf.setFieldValue(entry.getValue().getValue());
+            dvf.setFieldLength(entry.getValue().getLength());
+
+            tx.addDigitalVoucherField(dvf);
+        }
+    }
+
+    private void generateISOFields(Transaction tx, Iso8583Msg isoMsg, MessageType type) {
 
         for (Map.Entry<String, ValidatedVariable<Object>> field : isoMsg.getDataElements().entrySet()) {
 
@@ -328,7 +399,7 @@ public class TransactionService {
         logger.debug("SaveResponse UUID={}, artificialDelay={}, responseMsg={}", tx.getUuid(), artificialDelay, responseMsg);
 
         setResponseAttributes(tx, artificialDelay, responseMsg, responseTime, processedAt);
-        generateISOFields(tx, responseMsg, IsoMessageType.RESPONSE);
+        generateISOFields(tx, responseMsg, MessageType.RESPONSE);
 
         tx = repository.save(tx);
 
@@ -361,7 +432,7 @@ public class TransactionService {
         for (Map.Entry<String, ValidatedVariable<Object>> field : isoMsg.getDataElements().entrySet()) {
             Iso8583Field isoField = new Iso8583Field();
             isoField.setTransaction(tx);
-            isoField.setMessageType(IsoMessageType.RESPONSE);
+            isoField.setMessageType(MessageType.RESPONSE);
             isoField.setFieldId(field.getKey());
 
             Object value = field.getValue().getValue();
@@ -425,8 +496,6 @@ public class TransactionService {
 
         tx.setTxTimestamp(respondedAt);
         tx.setStatus(MessageStatus.success);
-
-        tx.setResponseCode(responseParer.getResponseCode());
 
         tx.setHexResponse(rawData);
         tx.setArtificialDelay(artificialDelay);

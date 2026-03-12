@@ -47,3 +47,20 @@ CREATE TABLE IF NOT EXISTS iso8583_fields (
 
 CREATE INDEX IF NOT EXISTS idx_transactions_tx_timestamp
     ON transactions(tx_timestamp);
+
+CREATE TABLE IF NOT EXISTS digital_voucher_fields (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    transaction_id BIGINT NOT NULL,
+    message_type VARCHAR(10) NOT NULL, -- REQUEST or RESPONSE
+    field_id VARCHAR(50) NOT NULL,
+    field_length INT,
+    field_value CLOB,
+
+    CONSTRAINT fk_digital_voucher_transaction
+    FOREIGN KEY (transaction_id)
+    REFERENCES transactions(id)
+    ON DELETE CASCADE
+    );
+
+CREATE INDEX IF NOT EXISTS idx_digital_voucher_transaction_id
+    ON digital_voucher_fields(transaction_id);

@@ -3,6 +3,7 @@
   "globalDelay" : 0,
   "perTerminal" : {
     "TERMINA1" : 2,
-    "TERMINA3" : 1
+    "TERMINA3" : 1,
+    "9B00O808" : 5
   }
 }

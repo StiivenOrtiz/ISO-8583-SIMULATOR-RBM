@@ -1,7 +1,7 @@
 package com.stiiven0rtiz.iso8583simulatorbackendrbm.services;
 
 import com.stiiven0rtiz.iso8583simulatorbackendrbm.models.Iso8583Field;
-import com.stiiven0rtiz.iso8583simulatorbackendrbm.models.IsoMessageType;
+import com.stiiven0rtiz.iso8583simulatorbackendrbm.models.MessageType;
 import com.stiiven0rtiz.iso8583simulatorbackendrbm.models.Transaction;
 import com.stiiven0rtiz.iso8583simulatorbackendrbm.repositories.Iso8583FieldRepository;
 import org.springframework.stereotype.Service;
@@ -41,7 +41,7 @@ public class Iso8583FieldService {
 
     public List<Iso8583Field> getFieldsByTransactionAndType(
             Transaction tx,
-            IsoMessageType type
+            MessageType type
     ) {
         return repository.findByTransactionAndMessageType(tx, type);
     }

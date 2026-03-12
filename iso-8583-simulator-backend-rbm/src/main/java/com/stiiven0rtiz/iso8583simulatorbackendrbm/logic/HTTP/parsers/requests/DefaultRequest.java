@@ -10,10 +10,10 @@ import static com.stiiven0rtiz.iso8583simulatorbackendrbm.gateway.handlers.util.
 @HTTPRequestParserType(HTTPRequestsParsers.NOT_MAPPED)
 public non-sealed class DefaultRequest implements HTTPRequestParser {
     @Override
-    public Transaction parseHTTPMessage(byte[] message, DecodedHTTPMetadata decodedHTTPMetadata) {
+    public Transaction parseHTTPMessage(byte[] rawMessagem, DecodedHTTPMetadata decodedHTTPMetadata) {
         Transaction tx = new Transaction();
 
-        tx.setHexRequest(toHexNoSpace(message));
+        tx.setHexRequest(toHexNoSpace(rawMessagem));
 
         return tx;
     }

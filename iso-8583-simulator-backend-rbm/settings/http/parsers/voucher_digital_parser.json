@@ -1,5 +1,5 @@
 {
-  "STX": {
+  "stx": {
     "name": "STX",
     "position": 1,
     "bytes": 1,
@@ -10,7 +10,7 @@
     ],
     "required": true
   },
-  "Length": {
+  "length": {
     "name": "Length",
     "position": 2,
     "bytes": 2,
@@ -191,7 +191,7 @@
       }
     ]
   },
-  "ETX": {
+  "etx": {
     "name": "ETX",
     "position": 5,
     "bytes": 1,
@@ -202,7 +202,7 @@
     ],
     "required": true
   },
-  "LRC": {
+  "lrc": {
     "name": "LRC",
     "position": 6,
     "bytes": 1,

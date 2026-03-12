@@ -5,27 +5,20 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * Iso8583Field.java
- * <p>
- * This class represents an ISO 8583 field entity in the database.
- *
- * @version 2.0
- */
 @Getter
 @Setter
 @Entity
-@Table(name = "iso8583_fields")
-public class Iso8583Field {
+@Table(name = "digital_voucher_fields")
+public class DigitalVoucherField {
 
     @Id
     @SequenceGenerator(
-            name = "field_seq",
-            sequenceName = "field_seq"
+            name = "digital_voucher_field_seq",
+            sequenceName = "digital_voucher_field_seq"
     )
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "field_seq"
+            generator = "digital_voucher_field_seq"
     )
     private Long id;
 
@@ -35,6 +28,9 @@ public class Iso8583Field {
     @Lob
     @Column(name = "field_value")
     private String fieldValue;
+
+    @Column(name = "field_length")
+    private int fieldLength;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "message_type", nullable = false)

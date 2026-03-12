@@ -1,8 +1,9 @@
 package com.stiiven0rtiz.iso8583simulatorbackendrbm.mapper;
 
 import com.stiiven0rtiz.iso8583simulatorbackendrbm.dto.TransactionDto;
+import com.stiiven0rtiz.iso8583simulatorbackendrbm.models.DigitalVoucherField;
 import com.stiiven0rtiz.iso8583simulatorbackendrbm.models.Iso8583Field;
-import com.stiiven0rtiz.iso8583simulatorbackendrbm.models.IsoMessageType;
+import com.stiiven0rtiz.iso8583simulatorbackendrbm.models.MessageType;
 import com.stiiven0rtiz.iso8583simulatorbackendrbm.models.Transaction;
 import org.springframework.stereotype.Component;
 
@@ -34,14 +35,21 @@ public class TransactionMapper {
                 entity.getRrn(),
                 entity.getBitmapPrimary(),
                 entity.getBitmapSecondary(),
-                toDTOIso8583Fields(filterIsoFieldsByType(entity.getIso8583Fields(), IsoMessageType.REQUEST)),
-                toDTOIso8583Fields(filterIsoFieldsByType(entity.getIso8583Fields(), IsoMessageType.RESPONSE)),
+                toDTOIso8583Fields(filterIsoFieldsByType(entity.getIso8583Fields(), MessageType.REQUEST)),
+                toDTOIso8583Fields(filterIsoFieldsByType(entity.getIso8583Fields(), MessageType.RESPONSE)),
+                toDTODVFields(filterDVFieldsByType(entity.getDigitalVoucherFields(), MessageType.REQUEST)),
                 entity.getHexRequest(),
                 entity.getHexResponse()
         );
     }
 
-    private static List<Iso8583Field> filterIsoFieldsByType(List<Iso8583Field> fields, IsoMessageType type) {
+    private static List<Iso8583Field> filterIsoFieldsByType(List<Iso8583Field> fields, MessageType type) {
+        return fields.stream()
+                .filter(field -> field.getMessageType() == type)
+                .collect(Collectors.toList());
+    }
+
+    private static List<DigitalVoucherField> filterDVFieldsByType(List<DigitalVoucherField> fields, MessageType type) {
         return fields.stream()
                 .filter(field -> field.getMessageType() == type)
                 .collect(Collectors.toList());
@@ -50,6 +58,15 @@ public class TransactionMapper {
     private static Map<String, String> toDTOIso8583Fields(List<Iso8583Field> iso8583Fields) {
         Map<String, String> dataElements = new HashMap<>();
         for (Iso8583Field field : iso8583Fields) {
+            assert false;
+            dataElements.put(field.getFieldId(), field.getFieldValue());
+        }
+        return dataElements;
+    }
+
+    private static Map<String, String> toDTODVFields(List<DigitalVoucherField> dvFields) {
+        Map<String, String> dataElements = new HashMap<>();
+        for (DigitalVoucherField field : dvFields) {
             assert false;
             dataElements.put(field.getFieldId(), field.getFieldValue());
         }

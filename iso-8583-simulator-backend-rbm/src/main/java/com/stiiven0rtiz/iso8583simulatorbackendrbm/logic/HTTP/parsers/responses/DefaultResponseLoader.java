@@ -34,6 +34,8 @@ public non-sealed class DefaultResponseLoader implements HTTPResponseParser {
         String hexS;
         Transaction tx = new Transaction();
 
+        tx.setTerminal(transaction.getTerminal());
+
         if (defaultResponse.getRawSpacesMode())
             hexS = defaultResponse.getRaw().replace(" ", "");
         else

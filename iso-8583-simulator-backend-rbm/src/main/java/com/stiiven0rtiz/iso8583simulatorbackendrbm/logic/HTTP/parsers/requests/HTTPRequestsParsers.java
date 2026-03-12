@@ -2,6 +2,7 @@ package com.stiiven0rtiz.iso8583simulatorbackendrbm.logic.HTTP.parsers.requests;
 
 public enum HTTPRequestsParsers {
     NOT_MAPPED("not_mapped"),
+    DIGITAL_VOUCHER("digital_voucher"),
     ;
 
     private final String name;

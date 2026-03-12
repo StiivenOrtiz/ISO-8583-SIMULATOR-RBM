@@ -1,7 +1,7 @@
 package com.stiiven0rtiz.iso8583simulatorbackendrbm.repositories;
 
 import com.stiiven0rtiz.iso8583simulatorbackendrbm.models.Iso8583Field;
-import com.stiiven0rtiz.iso8583simulatorbackendrbm.models.IsoMessageType;
+import com.stiiven0rtiz.iso8583simulatorbackendrbm.models.MessageType;
 import com.stiiven0rtiz.iso8583simulatorbackendrbm.models.Transaction;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -20,5 +20,5 @@ public interface Iso8583FieldRepository extends JpaRepository<Iso8583Field, Long
     // Find all fields by transaction
     List<Iso8583Field> findByTransaction(Transaction transaction);
 
-    List<Iso8583Field> findByTransactionAndMessageType(Transaction tx, IsoMessageType type);
+    List<Iso8583Field> findByTransactionAndMessageType(Transaction tx, MessageType type);
 }

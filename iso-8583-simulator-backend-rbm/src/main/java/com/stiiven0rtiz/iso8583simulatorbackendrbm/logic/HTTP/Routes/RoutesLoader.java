@@ -16,8 +16,8 @@ public class RoutesLoader {
     private final String thisId = toString().substring(toString().indexOf("@"));
     private final Logger logger = LoggerFactory.getLogger(RoutesLoader.class);
     private PathsConfig routesConfig;
-    long lastLength = 0;
-    long lastModified = 0;
+    private long lastLength = 0;
+    private long lastModified = 0;
 
     private void LoadConfig() throws Exception {
         ObjectMapper mapper = new ObjectMapper();

@@ -29,6 +29,7 @@ public record TransactionDto(
         String bitmapSecondary,
         Map<String, String> requestDataElements,
         Map<String, String> responseDataElements,
+        Map<String, String> requestDVElements,
         String hexRequest,
         String hexResponse
 ) {}
