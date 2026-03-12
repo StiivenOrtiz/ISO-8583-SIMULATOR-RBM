@@ -5,11 +5,13 @@ import com.stiiven0rtiz.iso8583simulatorbackendrbm.logic.HTTP.Routes.RoutesLoade
 import com.stiiven0rtiz.iso8583simulatorbackendrbm.logic.HTTP.parsers.requests.HTTPRequestParser;
 import com.stiiven0rtiz.iso8583simulatorbackendrbm.logic.HTTP.parsers.requests.HTTPRequestParserType;
 import com.stiiven0rtiz.iso8583simulatorbackendrbm.logic.HTTP.parsers.requests.HTTPRequestsParsers;
+import com.stiiven0rtiz.iso8583simulatorbackendrbm.logic.HTTP.parsers.responses.DefaultResponseLoaderFactory;
 import com.stiiven0rtiz.iso8583simulatorbackendrbm.logic.HTTP.parsers.responses.HTTPResponseParser;
 import com.stiiven0rtiz.iso8583simulatorbackendrbm.logic.HTTP.parsers.responses.HTTPResponseParserType;
 import com.stiiven0rtiz.iso8583simulatorbackendrbm.logic.HTTP.parsers.responses.HTTPResponsesParsers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -22,26 +24,33 @@ public class HTTPConfig {
     String thisId = toString().substring(toString().indexOf("@"));
 
     private final RoutesLoader routesLoader;
+    private final DefaultResponseLoaderFactory defaultResponseLoaderFactory;
     private final Map<HTTPResponsesParsers, HTTPResponseParser> responsesParsers = new HashMap<>();
     private final Map<HTTPRequestsParsers, HTTPRequestParser> requestsParsers = new HashMap<>();
 
-    public HTTPConfig(List<HTTPResponseParser> responseParserList, List<HTTPRequestParser> requestParserList, RoutesLoader routesLoader) {
+    public HTTPConfig(List<HTTPResponseParser> responseParserList,
+                      List<HTTPRequestParser> requestParserList,
+                      RoutesLoader routesLoader,
+                      DefaultResponseLoaderFactory defaultResponseLoaderFactory) {
 
         for (HTTPResponseParser parser : responseParserList) {
             HTTPResponseParserType annotation = parser.getClass().getAnnotation(HTTPResponseParserType.class);
 
-            if (annotation != null)
+            if (annotation != null) {
                 responsesParsers.put(annotation.value(), parser);
+            }
         }
 
         for (HTTPRequestParser parser : requestParserList) {
             HTTPRequestParserType annotation = parser.getClass().getAnnotation(HTTPRequestParserType.class);
 
-            if (annotation != null)
+            if (annotation != null) {
                 requestsParsers.put(annotation.value(), parser);
+            }
         }
 
         this.routesLoader = routesLoader;
+        this.defaultResponseLoaderFactory = defaultResponseLoaderFactory;
 
         logger.info("{} - Initialized HTTPConfig with {} request parsers and {} response parsers.",
                 thisId, requestsParsers.size(), responsesParsers.size());
@@ -58,7 +67,12 @@ public class HTTPConfig {
         HTTPRequestParser requestParser = requestsParsers.get(requestParserType);
 
         HTTPResponsesParsers reponseParser = HTTPResponsesParsers.from(route.getResponseSchema());
-        HTTPResponseParser responseParser = responsesParsers.get(reponseParser);
+        HTTPResponseParser  responseParser;
+
+        if (reponseParser == HTTPResponsesParsers.NOT_MAPPED)
+            responseParser = defaultResponseLoaderFactory.create(route.getResponseFileName());
+        else
+            responseParser = responsesParsers.get(reponseParser);
 
         if (requestParser == null || responseParser == null)
             throw new Exception("No parser found for request schema: " + route.getRequestSchema() + " or response schema: " + route.getResponseSchema());

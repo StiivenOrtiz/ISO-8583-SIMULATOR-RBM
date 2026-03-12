@@ -4,7 +4,8 @@
       "method": "PUT",
       "path": "/Terminal/Voucher",
       "requestSchema": "not_mapped",
-      "responseSchema": "not_mapped"
+      "responseSchema": "not_mapped",
+      "responseFileName": "default_put_terminal_voucher_response.json"
     }
   ]
 }

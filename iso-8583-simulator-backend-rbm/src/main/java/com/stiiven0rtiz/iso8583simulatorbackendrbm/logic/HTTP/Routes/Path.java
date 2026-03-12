@@ -10,4 +10,5 @@ public class Path {
     private String path;
     private String requestSchema;
     private String responseSchema;
+    private String responseFileName;
 }

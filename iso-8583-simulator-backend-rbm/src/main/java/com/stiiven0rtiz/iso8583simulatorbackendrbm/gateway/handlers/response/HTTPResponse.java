@@ -16,7 +16,8 @@ public class HTTPResponse implements ProtocolResponse {
         ConstructedHTTPMetadata metadata = (ConstructedHTTPMetadata) input.metadata();
 
         ResponseMSGHTTP responseMSGHTTP = new ResponseMSGHTTP(metadata.httpDefinition()
-                .httpResponseParser().parseHTTPMessage(metadata.drawTransaction()));
+                .httpResponseParser()
+                .parseHTTPMessage(metadata.drawTransaction()));
 
         String reorderedTPDU = getReorderedTPDU(metadata);
 

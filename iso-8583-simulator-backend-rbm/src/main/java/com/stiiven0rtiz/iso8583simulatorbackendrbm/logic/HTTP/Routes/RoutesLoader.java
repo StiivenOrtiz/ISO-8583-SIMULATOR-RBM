@@ -10,8 +10,8 @@ import java.io.File;
 
 @Component
 public class RoutesLoader {
-    @Value("${http-config.PathsFilePath}")
-    String httpRoutesFilePath;
+    @Value("${http-config.pathsFilePath}")
+    private String httpRoutesFilePath;
 
     private final String thisId = toString().substring(toString().indexOf("@"));
     private final Logger logger = LoggerFactory.getLogger(RoutesLoader.class);
