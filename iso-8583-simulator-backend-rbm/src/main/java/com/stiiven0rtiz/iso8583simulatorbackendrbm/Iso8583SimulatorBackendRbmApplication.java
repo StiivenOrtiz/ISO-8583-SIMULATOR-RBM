@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class Iso8583SimulatorBackendApplication {
+public class Iso8583SimulatorBackendRbmApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(Iso8583SimulatorBackendApplication.class, args);
+        SpringApplication.run(Iso8583SimulatorBackendRbmApplication.class, args);
     }
 
 }
