@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.stiiven0rtiz</groupId>
     <artifactId>iso-8583-simulator-backend-rbm</artifactId>
-    <version>3.0.3</version>
+    <version>3.1.0</version>
     <name>iso-8583-simulator-backend-rbm</name>
     <description>iso-8583-simulator-backend-rbm</description>
     <url/>
