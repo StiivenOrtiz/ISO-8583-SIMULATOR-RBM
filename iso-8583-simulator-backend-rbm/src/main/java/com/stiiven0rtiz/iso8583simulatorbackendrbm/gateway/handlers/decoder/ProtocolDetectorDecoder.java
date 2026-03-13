@@ -8,12 +8,14 @@ import com.stiiven0rtiz.iso8583simulatorbackendrbm.gateway.handlers.protocol.Sup
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
+import io.netty.util.concurrent.ScheduledFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -32,7 +34,12 @@ public class ProtocolDetectorDecoder extends ByteToMessageDecoder {
     private final int maxInvalidBytes;
     private final int TPDU_LENGTH;
 
-    public ProtocolDetectorDecoder(List<ProtocolFrameDecoder> decoders, int maxInvalidBytes, int TPDU_LENGTH) {
+    private ScheduledFuture<?> frameTimeoutFuture;
+    private final long RESET_GUARD_MS;
+    private final long TIMEOUT;
+    private long lastTimeoutReset = 0;
+
+    public ProtocolDetectorDecoder(List<ProtocolFrameDecoder> decoders, int maxInvalidBytes, int TPDU_LENGTH, long resetGuardMs, long timeout) {
         this.decoders = decoders.stream()
                 .collect(Collectors.toMap(
                         d -> d.getClass()
@@ -41,6 +48,8 @@ public class ProtocolDetectorDecoder extends ByteToMessageDecoder {
                 ));
         this.maxInvalidBytes = maxInvalidBytes;
         this.TPDU_LENGTH = TPDU_LENGTH;
+        this.RESET_GUARD_MS = resetGuardMs;
+        this.TIMEOUT = timeout;
     }
 
     @Override
@@ -56,6 +65,7 @@ public class ProtocolDetectorDecoder extends ByteToMessageDecoder {
      */
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
+        cancelFrameTimeout();
         logger.info("{} - Connection lost from: {}.", thisId, ctx.channel().remoteAddress());
         ctx.fireChannelInactive();
     }
@@ -75,6 +85,10 @@ public class ProtocolDetectorDecoder extends ByteToMessageDecoder {
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) {
+
+        if (activeDecoder == null && in.isReadable())
+            maybeResetTimeout(ctx);
+
         logger.info("{} - Decoding incoming data from: {}.", thisId, ctx.channel().remoteAddress());
         if (!in.isReadable()) return;
         logger.info("{} - Data is readable from: {}.", thisId, ctx.channel().remoteAddress());
@@ -127,11 +141,12 @@ public class ProtocolDetectorDecoder extends ByteToMessageDecoder {
             activeDecoder = decoders.get(protocol);
             logger.info("{} - Protocol Decoder: {}", thisId, activeDecoder);
 
-            if (activeDecoder == null){
+            if (activeDecoder == null) {
                 logger.error("{} - No decoder found for protocol {}.", thisId, protocol);
                 createErrorTxContext(ctx, in, protocol);
                 throw new IllegalStateException("No decoder for protocol: " + protocol + ".");
-            }
+            } else
+                maybeResetTimeout(ctx);
         }
 
         logger.info("{} - Delegating to protocol decoder: {}", thisId, activeDecoder);
@@ -140,8 +155,10 @@ public class ProtocolDetectorDecoder extends ByteToMessageDecoder {
 
         if (frame == null) {
             logger.info("{} - Protocol frame is null.", thisId);
+            maybeResetTimeout(ctx);
             return; // need more data
         }
+        cancelFrameTimeout();
 
         ctx.channel().attr(ChannelAttributes.TX_CONTEXT).set(frame.context());
 
@@ -158,6 +175,47 @@ public class ProtocolDetectorDecoder extends ByteToMessageDecoder {
             transactionContext = new TransactionContext(in, protocol);
 
         ctx.channel().attr(ChannelAttributes.TX_CONTEXT).set(transactionContext);
+    }
+
+    private void resetFrameTimeout(ChannelHandlerContext ctx) {
+
+        if (frameTimeoutFuture != null) {
+            logger.debug("{} - Cancelling previous frame timeout task.", thisId);
+            frameTimeoutFuture.cancel(false);
+        }
+
+        logger.debug("{} - Scheduling new frame timeout ({} seconds).", thisId, TIMEOUT);
+
+        frameTimeoutFuture = ctx.executor().schedule(() -> {
+            logger.error("{} - Frame assembly timeout fired. Closing channel {}.",
+                    thisId, ctx.channel().remoteAddress());
+
+            createErrorTxContext(ctx, ctx.alloc().buffer(0), null);
+            ctx.close();
+        }, TIMEOUT, TimeUnit.SECONDS);
+    }
+
+    private void cancelFrameTimeout() {
+        if (frameTimeoutFuture != null) {
+            logger.debug("{} - Cancelling frame timeout task.", thisId);
+            frameTimeoutFuture.cancel(false);
+            frameTimeoutFuture = null;
+        } else
+            logger.debug("{} - No frame timeout task to cancel.", thisId);
+    }
+
+    private void maybeResetTimeout(ChannelHandlerContext ctx) {
+        long now = System.currentTimeMillis();
+        long delta = now - lastTimeoutReset;
+
+        if (delta > RESET_GUARD_MS) {
+            logger.debug("{} - Resetting frame timeout (delta={} ms > guard={} ms).",
+                    thisId, delta, RESET_GUARD_MS);
+
+            resetFrameTimeout(ctx);
+            lastTimeoutReset = now;
+        } else
+            logger.debug("{} - Skipping timeout reset (delta={} ms <= guard={} ms).", thisId, delta, RESET_GUARD_MS);
     }
 }
 

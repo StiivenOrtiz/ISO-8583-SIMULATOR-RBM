@@ -92,6 +92,12 @@ public class NettyConfig {
     @Value("${netty.close.timeout.hours}")
     private int closeTimeoutHours;
 
+    @Value("${netty.decoder.timeout.maxS}")
+    private int decoderTimeoutMax;
+
+    @Value("${netty.decoder.timeout.resetGuardMs}")
+    private int decoderTimeoutResetGuardMs;
+
     /**
      * The number of threads to use for the boss group.
      */
@@ -202,7 +208,8 @@ public class NettyConfig {
                         new ProtocolDetectorDecoder(List.of(
                                 new Iso8583Decoder(isoFieldsData),
                                 new HTTPDecoder(isoFieldsData.getTPDU().length())),
-                                decoderMaxErrors, isoFieldsData.getTPDU().length()));
+                                decoderMaxErrors, isoFieldsData.getTPDU().length(),
+                                decoderTimeoutResetGuardMs, decoderTimeoutMax));
 
 //                ch.pipeline().addLast(executorConstructorGroup,
 //                        new Iso8583MSGConstructorHandler(isoFieldsData, transactionService));

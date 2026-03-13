@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
  *
  * This class only closes and re-binds the server channel. The event loop groups remain active.
  *
- * @version 1.2
+ * @version 1.3
  */
 @Component
 public class NettyServerController {
@@ -26,7 +26,7 @@ public class NettyServerController {
     private final ChannelGroup allChannels;
     private final int port;
 
-    private ChannelFuture channelFuture;
+    private volatile ChannelFuture channelFuture;
 
     public NettyServerController(ServerBootstrap bootstrap, ChannelGroup allChannels, int port) {
         this.bootstrap = bootstrap;
@@ -34,32 +34,85 @@ public class NettyServerController {
         this.port = port;
     }
 
+    /**
+     * Starts Netty only if it is not already running.
+     */
     public synchronized void startNetty() throws InterruptedException {
+
+        if (isRunning()) {
+            logger.warn("Netty already running on port {}", port);
+            return;
+        }
+
         logger.info("Starting Netty on port {}", port);
+
         channelFuture = bootstrap.bind(port).sync();
+
+        logger.info("Netty started successfully.");
     }
 
+    /**
+     * Stops Netty server channel and closes all active connections.
+     */
     public synchronized void stopNetty() throws InterruptedException {
+
+        if (!isRunning()) {
+            logger.warn("Netty is not running.");
+            return;
+        }
+
         logger.info("Stopping Netty...");
 
-        if (allChannels != null)
+        if (allChannels != null && !allChannels.isEmpty()) {
+            logger.info("Closing {} active connections...", allChannels.size());
             allChannels.close().sync();
+        }
 
-        if (channelFuture != null && channelFuture.channel().isOpen())
+        if (channelFuture != null) {
             channelFuture.channel().close().sync();
+        }
+
+        channelFuture = null;
 
         logger.info("Netty stopped.");
     }
 
-    public void restartNetty() {
-        new Thread(() -> {
-            try {
-                stopNetty();
-                startNetty();
-                logger.info("Netty restarted successfully!");
-            } catch (Exception e) {
-                logger.error("Error restarting Netty", e);
-            }
-        }, "netty-restart-thread").start();
+    /**
+     * Restart Netty in a safe synchronized way.
+     */
+    public synchronized void restartNetty() {
+
+        try {
+
+            logger.info("Restarting Netty...");
+
+            stopNetty();
+            startNetty();
+
+            logger.info("Netty restarted successfully.");
+
+        } catch (Exception e) {
+
+            logger.error("Error restarting Netty", e);
+
+        }
     }
+
+    /**
+     * True if server socket is active and accepting connections.
+     */
+    public synchronized boolean isRunning() {
+
+        return channelFuture != null
+                && channelFuture.channel() != null
+                && channelFuture.channel().isActive();
+    }
+
+    /**
+     * Returns number of active TCP connections.
+     */
+    public int activeConnections() {
+        return allChannels != null ? allChannels.size() : 0;
+    }
+
 }
