@@ -19,6 +19,7 @@ export interface Transaction {
   bitmapSecondary?: string;
   requestDataElements?: Record<string, string>;
   responseDataElements?: Record<string, string>;
+  requestDVElements?: Record<string, string>;
   hexRequest?: string;
   hexResponse?: string;
 }

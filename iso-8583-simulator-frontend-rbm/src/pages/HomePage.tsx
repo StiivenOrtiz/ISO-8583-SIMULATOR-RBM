@@ -31,7 +31,7 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [changed, setChanged] = useState(false);
   const prevTotalRef = useRef<number | null>(null);
-  const changedTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const changedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const fetchStatistics = async (range: DateRange | undefined) => {
     if (!range?.from) return;
