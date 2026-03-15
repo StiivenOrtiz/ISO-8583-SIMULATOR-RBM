@@ -15,4 +15,5 @@ public interface DigitalVoucherFieldRepository extends JpaRepository<DigitalVouc
             Transaction tx,
             MessageType type
     );
+
 }

@@ -201,7 +201,7 @@ public class TransactionService {
 
         tx.setTerminal((String) isoMsg.getDataElement("P41"));
 
-        if(isoMsg.getDataElement("P4") != null)
+        if (isoMsg.getDataElement("P4") != null)
             tx.setAmount(new BigDecimal((String) isoMsg.getDataElement("P4")).movePointLeft(2));
 
         Object track2 = isoMsg.getDataElement("P35");
@@ -245,58 +245,25 @@ public class TransactionService {
         return tx;
     }
 
-//    private Transaction buildTransaction(Iso8583Msg isoMsg, LocalDateTime receivedAt, LocalDateTime constructedAt) {
-//        logger.debug("SaveConstruction isoMsg={}, receivedAt={}", isoMsg, receivedAt);
-//
-//        Transaction tx = new Transaction();
-//        tx.setUuid(UUID.randomUUID().toString());
-//        tx.setProtocol(ProtocolType.ISO8583.name());
-//
-//        tx.setTerminal((String) isoMsg.getDataElement("P41"));
-//
-//        if(isoMsg.getDataElement("P4") != null)
-//            tx.setAmount(new BigDecimal((String) isoMsg.getDataElement("P4")).movePointLeft(2));
-//
-//        Object track2 = isoMsg.getDataElement("P35");
-//
-//        if (track2 != null)
-//            tx.setFranchise(binChecker.getFranchiseByBIN(
-//                    IsoUtils.getBinFromTrack2((String) track2)));
-//        else
-//            tx.setFranchise("none");
-//
-//        String id = isoMsg.getMTI().getValue().replace(" ", "") + isoMsg.getDataElement("P3");
-//        TransactionNamesConfig transactionType = transactionNamesLoader.getTransactionNames();
-//
-//        if (transactionType != null && transactionType.getNames() != null) {
-//            String name = transactionType.getNames().get(id);
-//            tx.setTransactionType(Objects.requireNonNullElse(name, "unknown"));
-//        } else {
-//            tx.setTransactionType("unknown");
-//        }
-//
-//        if (isoMsg.getMTI() != null)
-//            tx.setMti(isoMsg.getMTI().getValue().replace(" ", ""));
-//        tx.setStatus(MessageStatus.pending);
-//
-//        if (isoMsg.getBitmap() != null)
-//            tx.setBitmapPrimary(isoMsg.getBitmap().getValue().replace(" ", ""));
-//
-//        Object secondaryBitmap = isoMsg.getDataElement("P1");
-//
-//        if (secondaryBitmap != null) {
-//            logger.debug("{} - Secondary bitmap found: {}", thisId, secondaryBitmap);
-//            tx.setBitmapSecondary(((String) secondaryBitmap).replace(" ", ""));
-//        }
-//
-//        tx.setHexRequest(isoMsg.getRawData());
-//        tx.setReceivedAt(receivedAt);
-//        tx.setConstructedAt(constructedAt);
-//
-//        generateISOFields(tx, isoMsg, IsoMessageType.REQUEST);
-//
-//        return tx;
-//    }
+    public Optional<Transaction> findLastHTTPTransaction(
+            String terminal,
+            String fieldId1,
+            String fieldValue1,
+            String fieldId2,
+            String fieldValue2
+    ) {
+        List<Transaction> result =
+                repository.findLatestHTTPTransactionByTwoDVFields(
+                        terminal,
+                        ProtocolType.HTTP.name(),
+                        fieldId1,
+                        fieldValue1,
+                        fieldId2,
+                        fieldValue2
+                );
+
+        return result.stream().findFirst();
+    }
 
 
     /**
@@ -328,7 +295,7 @@ public class TransactionService {
 
     public static void generateVDFields(Transaction tx, Map<String, ParsedDigitalVoucherField> fields, MessageType type) {
 
-        for  (Map.Entry<String, ParsedDigitalVoucherField> entry : fields.entrySet()) {
+        for (Map.Entry<String, ParsedDigitalVoucherField> entry : fields.entrySet()) {
             DigitalVoucherField dvf = new DigitalVoucherField();
             dvf.setMessageType(type);
             dvf.setFieldId(entry.getKey());
@@ -395,7 +362,7 @@ public class TransactionService {
 
 
     public void saveISOResponse(Transaction tx, int artificialDelay, Iso8583Msg responseMsg,
-                      LocalDateTime responseTime, LocalDateTime processedAt) {
+                                LocalDateTime responseTime, LocalDateTime processedAt) {
         logger.debug("SaveResponse UUID={}, artificialDelay={}, responseMsg={}", tx.getUuid(), artificialDelay, responseMsg);
 
         setResponseAttributes(tx, artificialDelay, responseMsg, responseTime, processedAt);
@@ -491,8 +458,8 @@ public class TransactionService {
         return transaction;
     }
 
-    public void saveHTTPResponse(Transaction tx, Transaction responseParer, int artificialDelay, String rawData, LocalDateTime respondedAt, LocalDateTime processedAt) {
-        logger.debug("SaveHTTPResponse tx UUID={}, responseParer={}, artificialDelay={}, rawData={}", tx.getUuid(), responseParer, artificialDelay, rawData);
+    public void saveHTTPResponse(Transaction tx, Transaction responseParser, int artificialDelay, String rawData, LocalDateTime respondedAt, LocalDateTime processedAt) {
+        logger.debug("SaveHTTPResponse tx UUID={}, responseParer={}, artificialDelay={}, rawData={}", tx.getUuid(), responseParser, artificialDelay, rawData);
 
         tx.setTxTimestamp(respondedAt);
         tx.setStatus(MessageStatus.success);
@@ -505,5 +472,114 @@ public class TransactionService {
         tx = repository.save(tx);
 
         publisher.publishEvent(new TransactionCSavedEvent(tx));
+
+        validateDVSignature(tx);
     }
+
+
+    private void validateDVSignature(Transaction tx) {
+        logger.debug("{} - Validating signature", thisId);
+
+        String signatureId = "signature";
+        String receiptId = "receipt";
+
+        // get dvfield receipt
+        DigitalVoucherField dvFieldReceipt = findField(tx, receiptId);
+        if (dvFieldReceipt == null) return;
+
+        logger.debug("{} - Found receipt field: {}", thisId, dvFieldReceipt);
+
+        Transaction transaction = findLastHTTPTransaction(
+                tx.getTerminal(),
+                "65", dvFieldReceipt.getFieldValue(),
+                "08", "1"
+        ).orElse(null);
+
+        if (transaction == null) return;
+
+        logger.debug("{} - Found transaction: {}", thisId, transaction);
+
+        DigitalVoucherField dvFieldSignature = findField(tx, signatureId);
+
+        if (dvFieldSignature == null) return;
+
+        logger.debug("{} - Found signature: {}", thisId, dvFieldSignature);
+
+        String signature = dvFieldSignature.getFieldValue();
+        DigitalVoucherField package_ = findField(tx, "package");
+        DigitalVoucherField targetSignatureField = findField(transaction, signatureId);
+
+
+        if (package_== null) return;
+
+        boolean change = false;
+
+        if (targetSignatureField == null) {
+            logger.debug("{} - Missing target signature: {}", thisId, signature);
+
+            DigitalVoucherField newSignature = new DigitalVoucherField();
+            newSignature.setFieldId(signatureId);
+            newSignature.setFieldValue(signature);
+            newSignature.setFieldLength(signature.length());
+            newSignature.setMessageType(MessageType.REQUEST);
+            transaction.addDigitalVoucherField(newSignature);
+
+
+            DigitalVoucherField newPackage = new DigitalVoucherField();
+            newPackage.setFieldId(package_.getFieldId());
+            newPackage.setFieldValue(package_.getFieldValue());
+            newPackage.setFieldLength(package_.getFieldLength());
+            newPackage.setMessageType(MessageType.REQUEST);
+            transaction.addDigitalVoucherField(newPackage);
+
+            DigitalVoucherField packages = findField(tx, "packages");
+
+            DigitalVoucherField newPackages = new DigitalVoucherField();
+            newPackages.setFieldId(packages.getFieldId());
+            newPackages.setFieldValue(packages.getFieldValue());
+            newPackages.setFieldLength(packages.getFieldLength());
+            newPackages.setMessageType(MessageType.REQUEST);
+            transaction.addDigitalVoucherField(newPackages);
+
+            change = true;
+        } else{
+            DigitalVoucherField packageTx = findField(transaction, "package");
+            DigitalVoucherField packagesTx = findField(transaction, "packages");
+
+            if (packageTx == null || packagesTx == null) return;
+
+            int packagesValue = Integer.parseInt(packagesTx.getFieldValue());
+            int packageValue = Integer.parseInt(packageTx.getFieldValue());
+
+            logger.debug("{} - Validating packages and package: {}, {}", thisId, packagesValue,  packageValue);
+
+            if (packagesValue != packageValue) { // store more packages signature
+                logger.debug("{} - Found target signature: {}", thisId, targetSignatureField);
+                targetSignatureField.setFieldValue(targetSignatureField.getFieldValue() + signature);
+                targetSignatureField.setFieldLength(targetSignatureField.getFieldLength() + signature.length());
+                packageTx.setFieldValue(package_.getFieldValue());
+                packageTx.setFieldLength(package_.getFieldLength());
+                change = true;
+            } else
+                logger.debug("{} - All packages are loaded: {}, dont save save nothing", thisId, targetSignatureField);
+        }
+
+        // if no change, do not save
+        if (!change) return;
+
+        // save changes
+        transaction = repository.save(transaction);
+        logger.debug("{} - saved transaction: {}", thisId, transaction);
+
+        publisher.publishEvent(new TransactionCSavedEvent(transaction));
+        logger.debug("{} - published event for transaction: {}", thisId, transaction);
+    }
+
+    private DigitalVoucherField findField(Transaction tx, String id){
+        return tx.getDigitalVoucherFields().stream()
+                .filter(f -> id.equals(f.getFieldId()))
+                .findFirst()
+                .orElse(null);
+    }
+
 }

@@ -13,7 +13,6 @@ import static com.stiiven0rtiz.iso8583simulatorbackendrbm.gateway.handlers.util.
 
 @Getter
 public class TransactionContext {
-
     @Setter
     private Promise<Long> transactionId;
     @Setter
@@ -31,11 +30,6 @@ public class TransactionContext {
     private LocalDateTime constructedAt;
     private LocalDateTime processedAt;
     private LocalDateTime respondedAt;
-
-    public TransactionContext() {
-        this.receivedAt = LocalDateTime.now();
-        this.protocolType = null;
-    }
 
     public TransactionContext(ByteBuf rawRequest) {
         this.receivedAt = LocalDateTime.now();
@@ -55,6 +49,11 @@ public class TransactionContext {
         this.protocolType = protocolType;
     }
 
+    private TransactionContext(ProtocolType protocolType, LocalDateTime receivedAt) {
+        this.protocolType = protocolType;
+        this.receivedAt = receivedAt;
+    }
+
     public void setConstructedMessage() {
         this.constructedAt = LocalDateTime.now();
     }
@@ -72,4 +71,26 @@ public class TransactionContext {
         return error != null;
     }
 
+    public TransactionContext copyAndDestroy() {
+        TransactionContext copy = new TransactionContext(this.protocolType, this.receivedAt);
+
+        copy.transactionId = this.transactionId;
+        this.transactionId = null;
+        copy.transaction = this.transaction;
+        this.transaction = null;
+        copy.error = this.error;
+        this.error = null;
+        copy.rawRequest = this.rawRequest;
+        this.rawRequest = null;
+        copy.rawResponse = this.rawResponse;
+        this.rawResponse = null;
+        copy.constructedAt = this.constructedAt;
+        this.constructedAt = null;
+        copy.processedAt = this.processedAt;
+        this.processedAt = null;
+        copy.respondedAt = this.respondedAt;
+        this.respondedAt = null;
+
+        return copy;
+    }
 }

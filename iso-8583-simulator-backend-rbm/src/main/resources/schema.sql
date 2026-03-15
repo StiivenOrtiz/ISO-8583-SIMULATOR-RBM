@@ -60,7 +60,10 @@ CREATE TABLE IF NOT EXISTS digital_voucher_fields (
     FOREIGN KEY (transaction_id)
     REFERENCES transactions(id)
     ON DELETE CASCADE
-    );
+);
 
 CREATE INDEX IF NOT EXISTS idx_digital_voucher_transaction_id
     ON digital_voucher_fields(transaction_id);
+
+CREATE INDEX IF NOT EXISTS idx_tx_terminal_protocol_time
+    ON transactions (terminal, protocol, received_at DESC);

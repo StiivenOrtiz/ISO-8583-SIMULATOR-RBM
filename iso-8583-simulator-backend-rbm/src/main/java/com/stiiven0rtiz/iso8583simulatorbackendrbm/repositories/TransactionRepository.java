@@ -1,9 +1,11 @@
 package com.stiiven0rtiz.iso8583simulatorbackendrbm.repositories;
 
 import com.stiiven0rtiz.iso8583simulatorbackendrbm.models.Transaction;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -62,4 +64,50 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
                 ORDER BY EXTRACT(HOUR FROM t.txTimestamp)
             """)
     List<Object[]> countGroupedByHour(LocalDateTime start, LocalDateTime end);
+
+    @Query("""
+                SELECT t
+                FROM Transaction t
+                JOIN t.digitalVoucherFields dvf
+                WHERE t.terminal = :terminal
+                  AND t.protocol = :protocol
+                  AND dvf.fieldId = :fieldId
+                  AND dvf.fieldValue = :fieldValue
+                ORDER BY t.receivedAt DESC
+            """)
+    List<Transaction> findLatestHTTPTransactionByDVField(
+            @Param("terminal") String terminal,
+            @Param("protocol") String protocol,
+            @Param("fieldId") String fieldId,
+            @Param("fieldValue") String fieldValue,
+            Pageable pageable
+    );
+
+    @Query("""
+            SELECT DISTINCT t
+            FROM Transaction t
+            LEFT JOIN FETCH t.digitalVoucherFields dvf
+            WHERE t.terminal = :terminal
+            AND t.protocol = :protocol
+            AND EXISTS (
+                SELECT 1 FROM t.digitalVoucherFields x
+                WHERE x.fieldId = :fieldId1
+                AND x.fieldValue = :fieldValue1
+            )
+            AND EXISTS (
+                SELECT 1 FROM t.digitalVoucherFields x
+                WHERE x.fieldId = :fieldId2
+                AND x.fieldValue = :fieldValue2
+            )
+            ORDER BY t.receivedAt DESC
+            """)
+    List<Transaction> findLatestHTTPTransactionByTwoDVFields(
+            String terminal,
+            String protocol,
+            String fieldId1,
+            String fieldValue1,
+            String fieldId2,
+            String fieldValue2
+    );
+
 }

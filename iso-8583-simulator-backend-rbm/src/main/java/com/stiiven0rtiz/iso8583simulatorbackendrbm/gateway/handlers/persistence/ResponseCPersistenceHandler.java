@@ -25,7 +25,7 @@ public class ResponseCPersistenceHandler extends SimpleChannelInboundHandler<Pro
 
         logger.debug("{} - Received response message: {}. Start saving response...", thisId, frame);
 
-        TransactionContext context = frame.context();
+        TransactionContext context = frame.context().copyAndDestroy();
 
         Promise<Transaction> promise = context.getTransaction();
 
@@ -40,7 +40,6 @@ public class ResponseCPersistenceHandler extends SimpleChannelInboundHandler<Pro
                 logger.debug("{} - Transaction promise completed successfully. Saving response...", thisId);
 
                 Transaction tx = (Transaction) future.getNow();
-
                 ProtocolType protocol = frame.protocol();
 
                 if (protocol == ProtocolType.ISO8583) {

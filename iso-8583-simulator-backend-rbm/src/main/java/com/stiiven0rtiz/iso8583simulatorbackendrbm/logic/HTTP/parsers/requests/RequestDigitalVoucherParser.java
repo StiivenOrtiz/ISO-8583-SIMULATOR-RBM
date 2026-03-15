@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 import static com.stiiven0rtiz.iso8583simulatorbackendrbm.gateway.handlers.util.BytesParser.parseHexWithoutSpacesString;
 import static com.stiiven0rtiz.iso8583simulatorbackendrbm.gateway.handlers.util.HexParser.toHexNoSpace;
-import static com.stiiven0rtiz.iso8583simulatorbackendrbm.logic.HTTP.parsers.ParserUtils.asciiToString;
+import static com.stiiven0rtiz.iso8583simulatorbackendrbm.logic.HTTP.parsers.ParserUtils.*;
 import static com.stiiven0rtiz.iso8583simulatorbackendrbm.services.TransactionService.generateVDFields;
 
 @Component
@@ -152,21 +152,23 @@ public final class RequestDigitalVoucherParser implements HTTPRequestParser {
 
         String terminal = asciiToString(params.get("Terminal"));
         String data = asciiToString(params.get("Data"));
+        String method = getMethod(rawMessagem, decodedHTTPMetadata.headerLength(), decodedHTTPMetadata.tpduLength());
+        String path = getPathWithoutQuery(rawMessagem, decodedHTTPMetadata.headerLength(), decodedHTTPMetadata.tpduLength());
 
         logger.debug("{} - param terminal {} param data {}", thisId, terminal, data);
 
         ParsedDigitalVoucherMessage parsedDigitalVoucherMessage = parse(parseHexWithoutSpacesString(data));
 
-        Map<String, ParsedDigitalVoucherField> fields =
-                parsedDigitalVoucherMessage.getVariableFields()
-                        .stream()
-                        .collect(Collectors.toMap(
-                                ParsedDigitalVoucherField::getName,
-                                Function.identity()));
+        Map<String, ParsedDigitalVoucherField> fields = parsedDigitalVoucherMessage.getVariableFields()
+                .stream()
+                .collect(Collectors.toMap(
+                        ParsedDigitalVoucherField::getName,
+                        Function.identity()));
 
         Transaction tx = new Transaction();
 
         tx.setTerminal(terminal);
+        tx.setMti(method + " " + path);
 
         ParsedDigitalVoucherField auxField;
 

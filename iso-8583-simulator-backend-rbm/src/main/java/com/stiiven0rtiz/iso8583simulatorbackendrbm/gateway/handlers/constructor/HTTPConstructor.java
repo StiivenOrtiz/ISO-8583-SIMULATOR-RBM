@@ -8,6 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static com.stiiven0rtiz.iso8583simulatorbackendrbm.gateway.handlers.util.BytesParser.bytesToHexNoSpace;
+import static com.stiiven0rtiz.iso8583simulatorbackendrbm.logic.HTTP.parsers.ParserUtils.getMethod;
+import static com.stiiven0rtiz.iso8583simulatorbackendrbm.logic.HTTP.parsers.ParserUtils.getPathWithoutQuery;
 
 @SupportsProtocol(ProtocolType.HTTP)
 public class HTTPConstructor implements ProtocolFrameConstructor {
@@ -52,29 +54,6 @@ public class HTTPConstructor implements ProtocolFrameConstructor {
                 new ConstructedHTTPMetadata(httpDefinition, tx, getTPDU(rawMessage, tpduLength)),
                 input.context()
         );
-    }
-
-    private String getMethod(byte[] rawMessage, int headerLength, int tpduLength) {
-        String method = new String(rawMessage, tpduLength, headerLength);
-        int firstSpace = method.indexOf(' ');
-        if (firstSpace == -1) {
-            return method; // No space found, return the whole string
-        }
-        return method.substring(0, firstSpace);
-    }
-
-    private String getPathWithoutQuery(byte[] rawMessage, int headerLength, int tpduLength) {
-        String method = new String(rawMessage, tpduLength, headerLength);
-        int firstSpace = method.indexOf(' ');
-        if (firstSpace == -1) {
-            return ""; // No space found, return empty path
-        }
-        String pathWithQuery = method.substring(firstSpace + 1);
-        int queryStart = pathWithQuery.indexOf('?');
-        if (queryStart == -1) {
-            return pathWithQuery; // No query string, return the whole path
-        }
-        return pathWithQuery.substring(0, queryStart);
     }
 
     private String getTPDU(byte[] rawMessage, int tpduLength) {

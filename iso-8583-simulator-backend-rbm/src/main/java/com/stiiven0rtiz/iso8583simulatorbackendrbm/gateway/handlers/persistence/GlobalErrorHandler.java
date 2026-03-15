@@ -101,7 +101,6 @@ public class GlobalErrorHandler extends ChannelInboundHandlerAdapter {
     }
 
     private void persistWithoutTransactionId(TransactionContext context) {
-
         String rawRequest = context.getRawRequest();
         ProtocolType protocolType = context.getProtocolType();
         LocalDateTime receivedAt = context.getReceivedAt();
@@ -118,6 +117,7 @@ public class GlobalErrorHandler extends ChannelInboundHandlerAdapter {
 
         // print discard raw request
         logger.error("{} - Discarding raw request due to error: {}", thisId, rawRequest);
+
 
         if (receivedAt != null) // pertsist when message has been decoded
             transactionService.saveError(rawRequest, protocolType, receivedAt);

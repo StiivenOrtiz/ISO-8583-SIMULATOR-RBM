@@ -24,7 +24,6 @@ public class HTTPDecoder implements ProtocolFrameDecoder {
 
     @Override
     public ProtocolFrame decode(ByteBuf in) {
-
         int readerIndex = in.readerIndex();
         int writerIndex = in.writerIndex();
 
@@ -39,9 +38,7 @@ public class HTTPDecoder implements ProtocolFrameDecoder {
 
         // ===== Scan headers once =====
         for (int i = readerIndex; i < writerIndex - 1; i++) {
-
             if (in.getByte(i) == '\r' && in.getByte(i + 1) == '\n') {
-
                 int pos = i - readerIndex;
 
                 if (crlfCount == crlf.length) {
@@ -59,13 +56,11 @@ public class HTTPDecoder implements ProtocolFrameDecoder {
                     break;
                 }
 
-                if (matchHeader(in, lineStart, lineLength, "Content-Length")) {
+                if (matchHeader(in, lineStart, lineLength, "Content-Length"))
                     contentLength = parseInt(in, lineStart + 15, lineLength - 15);
-                }
 
-                if (matchHeader(in, lineStart, lineLength, "Transfer-Encoding")) {
+                if (matchHeader(in, lineStart, lineLength, "Transfer-Encoding"))
                     chunked = containsChunked(in, lineStart, lineLength);
-                }
 
                 lineStart = i + 2;
             }
@@ -80,7 +75,6 @@ public class HTTPDecoder implements ProtocolFrameDecoder {
         int totalLength;
 
         if (chunked) {
-
             int chunkEnd = findChunkedEnd(in, headerEnd);
 
             if (chunkEnd == -1)
@@ -90,7 +84,6 @@ public class HTTPDecoder implements ProtocolFrameDecoder {
             totalLength = headerLength + bodyLength;
 
         } else {
-
             bodyLength = contentLength;
             totalLength = headerLength + bodyLength;
 
@@ -98,9 +91,11 @@ public class HTTPDecoder implements ProtocolFrameDecoder {
                 return null;
         }
 
-        // ===== Copy once =====
+        // ===== get total message
         byte[] message = new byte[totalLength];
-        in.readBytes(message);
+        in.getBytes(in.readerIndex(), message);
+        in.skipBytes(totalLength);
+
 
         // shrink CRLF array
         int[] finalCRLF = new int[crlfCount];
@@ -135,7 +130,6 @@ public class HTTPDecoder implements ProtocolFrameDecoder {
     // ===============================
 
     private boolean matchHeader(ByteBuf buf, int start, int length, String header) {
-
         int headerLen = header.length();
 
         if (length < headerLen)
@@ -149,9 +143,7 @@ public class HTTPDecoder implements ProtocolFrameDecoder {
     }
 
     private boolean containsChunked(ByteBuf buf, int start, int length) {
-
         for (int i = start; i < start + length - 6; i++) {
-
             if ((buf.getByte(i) == 'c' || buf.getByte(i) == 'C')
                     && (buf.getByte(i + 1) == 'h' || buf.getByte(i + 1) == 'H')
                     && (buf.getByte(i + 2) == 'u' || buf.getByte(i + 2) == 'U')
@@ -166,13 +158,10 @@ public class HTTPDecoder implements ProtocolFrameDecoder {
     }
 
     private int parseInt(ByteBuf buf, int start, int length) {
-
         int value = 0;
 
         for (int i = start; i < start + length; i++) {
-
             byte b = buf.getByte(i);
-
             if (b >= '0' && b <= '9')
                 value = value * 10 + (b - '0');
         }
@@ -185,11 +174,9 @@ public class HTTPDecoder implements ProtocolFrameDecoder {
     // ===============================
 
     private int findChunkedEnd(ByteBuf buffer, int startIndex) {
-
         int index = startIndex;
 
         while (true) {
-
             int lineEnd = findCRLF(buffer, index);
 
             if (lineEnd == -1)
@@ -200,10 +187,8 @@ public class HTTPDecoder implements ProtocolFrameDecoder {
             index = lineEnd + 2;
 
             if (chunkSize == 0) {
-
                 if (buffer.writerIndex() < index + 2)
                     return -1;
-
                 return index + 2;
             }
 
@@ -215,11 +200,9 @@ public class HTTPDecoder implements ProtocolFrameDecoder {
     }
 
     private int parseHex(ByteBuf buf, int start, int length) {
-
         int value = 0;
 
         for (int i = start; i < start + length; i++) {
-
             byte b = buf.getByte(i);
 
             if (b >= '0' && b <= '9')
@@ -234,7 +217,6 @@ public class HTTPDecoder implements ProtocolFrameDecoder {
     }
 
     private int findCRLF(ByteBuf buffer, int index) {
-
         int writerIndex = buffer.writerIndex();
 
         for (int i = index; i < writerIndex - 1; i++)

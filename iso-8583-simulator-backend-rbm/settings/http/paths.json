@@ -6,6 +6,13 @@
       "requestSchema": "digital_voucher",
       "responseSchema": "not_mapped",
       "responseFileName": "default_put_terminal_voucher_response.json"
+    },
+    {
+      "method": "PUT",
+      "path": "/Terminal/Voucher/Firma",
+      "requestSchema": "digital_voucher_signature",
+      "responseSchema": "not_mapped",
+      "responseFileName": "default_put_terminal_voucher_response.json"
     }
   ]
 }
