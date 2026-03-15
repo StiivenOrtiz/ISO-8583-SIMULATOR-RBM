@@ -7,7 +7,7 @@ export function useLiveFeed(isActive: boolean) {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [animationMap, setAnimationMap] = useState<Record<string, TxAnimationType>>({});
   const socketRef = useRef<WebSocket | null>(null);
-  const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const retryTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isActiveRef = useRef(isActive);
 
   const clearAnimation = useCallback((id: string) => {
